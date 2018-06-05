@@ -60,7 +60,7 @@ use std::collections::hash_map::{HashMap, Entry};
     pub struct Message{
         publish_tag: String,
         publisher: u64,
-        payload: OmniPayload
+        payload: Option<OmniPayload>
         /*Needed messages:
         Clock tick with current timestamp to allow for timers
         Current input to be sent by the input module after each tick
@@ -83,7 +83,7 @@ use std::collections::hash_map::{HashMap, Entry};
 
     impl Message {
         pub fn new_sub(to: &str, from: u64, subscribe_string: &str) -> Self{
-            Message{publish_tag: to.to_string(), publisher: from, payload: OmniPayload::Subscribe(subscribe_string.to_string())}
+            Message{publish_tag: to.to_string(), publisher: from, payload: Some(OmniPayload::Subscribe(subscribe_string.to_string()))}
         }
     }
 
@@ -147,7 +147,21 @@ use std::collections::hash_map::{HashMap, Entry};
                     Err(e) => {println!("{:?}", e);}
                 }
                 if msg.publish_tag == self.bus_id{
-                    println!("HERE {:?}", msg);
+                    let pub_tag = msg.publish_tag.clone();
+                    let pub_er = msg.publisher;
+                    match msg.payload{
+                        Some(kind) => {
+                        println!("HERE {:?}", kind);
+                        match kind {
+                            OmniPayload::Quit => return,
+                            OmniPayload::Subscribe(sub_tag) => {
+                                println!("Also here with {}", sub_tag);
+                            }
+                        }
+                        },
+                        None => {drop(msg); continue}
+                    }
+
                     return
                 }
                 match self.feeds.get_mut(){
