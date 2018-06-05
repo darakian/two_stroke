@@ -7,10 +7,10 @@ use std::sync::Arc;
 
 
 fn main() {
-    let mut badRand = lfsr_rng::stateful_lfsr::new(11);
+    let mut bad_rand = lfsr_rng::stateful_lfsr::new(11);
     let mut mb = omnibus::Omnibus::new("bus");
     mb.publish(Arc::new(omnibus::Message::new_sub("bus", 2, "test")));
-    badRand.step();
-    //println!("Hello, world! {}", badRand.sample());
+    bad_rand.step();
+    //println!("Hello, world! {}", bad_rand.sample());
     mb.do_messaging();
 }

@@ -105,7 +105,7 @@ use std::time::{Duration, Instant};
             let (send, receive) = unbounded::<Arc<Message>>();
                     match self.subscribers.entry(component_id) {
                         Entry::Vacant(es) => {es.insert(send.clone());},
-                        Entry::Occupied(mut e) => {return Err("Sub_ID in use");}
+                        Entry::Occupied(err) => {return Err("Sub_ID in use");}
                         }
             Ok((self.global_send.clone(), receive))
         }
@@ -155,11 +155,10 @@ use std::time::{Duration, Instant};
                         Some(feed_subscribers) => {
                             feed_subscribers.iter().for_each(|x| {
                                 //println!("Sending {:?} to {:?}", msg);
-                            x.send(msg.clone()).unwrap()})},
+                            x.send(Arc::clone(&msg)).unwrap()})},
                         None => {drop(msg)}
                     }
                 }
-
             }
         }
 
