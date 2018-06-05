@@ -61,19 +61,13 @@ use std::collections::hash_map::{HashMap, Entry};
         publish_tag: String,
         publisher: u64,
         payload: Option<OmniPayload>
-        /*Needed messages:
-        Clock tick with current timestamp to allow for timers
-        Current input to be sent by the input module after each tick
-        AI moves
-        RNG state
-        Sprite locations and layers for the renderer
-        */
     }
 
 #[derive(Debug, Clone)]
  enum OmniPayload {
     Quit,
     Subscribe(String),
+    Tick(u64),
     // Move {publish_tag: String, object_tag: String, x: i32, y: i32 },
     // RNG {publish_tag: String, value: u16},
     // Write {publish_tag: String, Message: String},
@@ -155,27 +149,29 @@ use std::collections::hash_map::{HashMap, Entry};
                         match kind {
                             OmniPayload::Quit => return,
                             OmniPayload::Subscribe(sub_tag) => {
+                                self.subscribe(&sub_tag, pub_er);
                                 println!("Also here with {}", sub_tag);
-                            }
-                        }
-                        },
-                        None => {drop(msg); continue}
-                    }
-
-                    return
-                }
-                match self.feeds.get_mut(){
-                        Ok(exclusive_feeds) => {
-                                match exclusive_feeds.get(&msg.publish_tag){
-                                    Some(feed_subscribers) => {
-                                        feed_subscribers.iter().for_each(|x| {
-                                            //println!("Sending {:?} to {:?}", msg);
-                                        x.send(msg.clone()).unwrap()})},
-                                    None => {drop(msg)}
                                 }
+                            _ => {}
+                            }
                         },
-                        Err (e) => {}
+                        None => {}
+                    }
+                } else {
+                    match self.feeds.get_mut(){
+                            Ok(exclusive_feeds) => {
+                                    match exclusive_feeds.get(&msg.publish_tag){
+                                        Some(feed_subscribers) => {
+                                            feed_subscribers.iter().for_each(|x| {
+                                                //println!("Sending {:?} to {:?}", msg);
+                                            x.send(msg.clone()).unwrap()})},
+                                        None => {drop(msg)}
+                                    }
+                            },
+                            Err (e) => {}
+                    }
                 }
+
             }
         }
 
