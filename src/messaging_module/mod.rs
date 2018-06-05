@@ -105,7 +105,12 @@ use std::collections::hash_map::{HashMap, Entry};
         }
 
         fn subscribe(&mut self, sub_tag: &str, component_id: u64) -> Result<(), &str>{
-            let relevant_channel = self.subscribers.get(&component_id).unwrap().clone();
+            println!("Adding {:?} to tag {}", component_id, sub_tag);
+            let relevant_channel = match self.subscribers.get(&component_id){
+                Some(channel) => channel.clone(),
+                None => return Err("No such channel")
+            };
+            println!("Here?");
             self.feeds.entry(sub_tag.to_string())
             .and_modify(|channel_vec| {
                 if channel_vec.contains(&relevant_channel) {/*Should handle the case where the channel is already in the channel_vec. TODO*/}
