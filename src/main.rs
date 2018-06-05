@@ -1,5 +1,6 @@
 mod messaging_module;
 use messaging_module::omnibus;
+mod clock;
 mod bad_rng;
 use bad_rng::lfsr_rng;
 

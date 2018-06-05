@@ -53,6 +53,7 @@ pub mod omnibus {
 extern crate crossbeam_channel;
 use self::crossbeam_channel::unbounded;
 use std::collections::hash_map::{HashMap, Entry};
+use std::time::{Duration, Instant};
 
     #[derive(Debug, Clone)]
     pub struct Message{
@@ -65,7 +66,7 @@ use std::collections::hash_map::{HashMap, Entry};
  enum OmniPayload {
     Quit,
     Subscribe(String),
-    Tick(u64),
+    Tick(Instant),
     // Move {publish_tag: String, object_tag: String, x: i32, y: i32 },
     // RNG {publish_tag: String, value: u16},
     // Write {publish_tag: String, Message: String},
@@ -76,6 +77,10 @@ use std::collections::hash_map::{HashMap, Entry};
     impl Message {
         pub fn new_sub(to: &str, from: u64, subscribe_string: &str) -> Self{
             Message{publish_tag: to.to_string(), publisher: from, payload: Some(OmniPayload::Subscribe(subscribe_string.to_string()))}
+        }
+
+        pub fn new_tick(to: &str, from: u64, tick_time: Instant) -> Self{
+            Message{publish_tag: to.to_string(), publisher: from, payload: Some(OmniPayload::Tick(tick_time))}
         }
     }
 
