@@ -51,6 +51,7 @@ mod tests {
 
 pub mod omnibus {
 extern crate crossbeam_channel;
+use std::sync::Arc;
 use self::crossbeam_channel::unbounded;
 use std::collections::hash_map::{HashMap, Entry};
 use std::time::{Duration, Instant};
@@ -86,22 +87,22 @@ use std::time::{Duration, Instant};
 
     pub struct Omnibus{
         bus_id: String,
-        global_recv: crossbeam_channel::Receiver<Message>,
-        global_send: crossbeam_channel::Sender<Message>,
-        subscribers:  HashMap<u64, (crossbeam_channel::Sender<Message>)>,
-        feeds: HashMap<String, Vec<crossbeam_channel::Sender<Message>>>
+        global_recv: crossbeam_channel::Receiver<Arc<Message>>,
+        global_send: crossbeam_channel::Sender<Arc<Message>>,
+        subscribers:  HashMap<u64, (crossbeam_channel::Sender<Arc<Message>>)>,
+        feeds: HashMap<String, Vec<crossbeam_channel::Sender<Arc<Message>>>>
     }
 
     impl Omnibus{
         pub fn new(bus_id: &str) -> Self{
-            let (send, receive) = unbounded::<Message>();
+            let (send, receive) = unbounded::<Arc<Message>>();
             let mut bus = Omnibus{bus_id: bus_id.to_string(), global_recv: receive, global_send: send, subscribers: HashMap::new(), feeds: HashMap::new()};
             let (bus_self_tx, bus_self_rx) = bus.join(0).unwrap();
             bus
         }
 
-        pub fn join(&mut self, component_id: u64) -> Result<(crossbeam_channel::Sender<Message>, crossbeam_channel::Receiver<Message>), &str>{
-            let (send, receive) = unbounded::<Message>();
+        pub fn join(&mut self, component_id: u64) -> Result<(crossbeam_channel::Sender<Arc<Message>>, crossbeam_channel::Receiver<Arc<Message>>), &str>{
+            let (send, receive) = unbounded::<Arc<Message>>();
                     match self.subscribers.entry(component_id) {
                         Entry::Vacant(es) => {es.insert(send.clone());},
                         Entry::Occupied(mut e) => {return Err("Sub_ID in use");}
@@ -136,7 +137,7 @@ use std::time::{Duration, Instant};
                     let pub_tag = msg.publish_tag.clone();
                     let pub_er = msg.publisher;
                     match msg.payload{
-                        Some(kind) => {
+                        Some(ref kind) => {
                         println!("HERE {:?}", kind);
                         match kind {
                             OmniPayload::Quit => return,
@@ -164,7 +165,7 @@ use std::time::{Duration, Instant};
 
 
         //Testing methods
-        pub fn publish(&mut self, m: Message) -> (){
+        pub fn publish(&mut self, m: Arc<Message>) -> (){
             self.global_send.send(m).unwrap();
         }
 
