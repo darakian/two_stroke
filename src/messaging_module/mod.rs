@@ -52,8 +52,6 @@ mod tests {
 pub mod omnibus {
 extern crate crossbeam_channel;
 use self::crossbeam_channel::unbounded;
-
-use std::sync::Mutex;
 use std::collections::hash_map::{HashMap, Entry};
 
     #[derive(Debug, Clone)]
@@ -85,49 +83,36 @@ use std::collections::hash_map::{HashMap, Entry};
         bus_id: String,
         global_recv: crossbeam_channel::Receiver<Message>,
         global_send: crossbeam_channel::Sender<Message>,
-        subscribers:  Mutex<HashMap<u64, (crossbeam_channel::Sender<Message>)>>,
-        feeds: Mutex<HashMap<String, Vec<crossbeam_channel::Sender<Message>>>>
+        subscribers:  HashMap<u64, (crossbeam_channel::Sender<Message>)>,
+        feeds: HashMap<String, Vec<crossbeam_channel::Sender<Message>>>
     }
 
     impl Omnibus{
         pub fn new(bus_id: &str) -> Self{
             let (send, receive) = unbounded::<Message>();
-            let mut bus = Omnibus{bus_id: bus_id.to_string(), global_recv: receive, global_send: send, subscribers: Mutex::new(HashMap::new()), feeds: Mutex::new(HashMap::new())};
+            let mut bus = Omnibus{bus_id: bus_id.to_string(), global_recv: receive, global_send: send, subscribers: HashMap::new(), feeds: HashMap::new()};
             let (bus_self_tx, bus_self_rx) = bus.join(0).unwrap();
             bus
         }
 
         pub fn join(&mut self, component_id: u64) -> Result<(crossbeam_channel::Sender<Message>, crossbeam_channel::Receiver<Message>), &str>{
             let (send, receive) = unbounded::<Message>();
-            match self.subscribers.get_mut(){
-                Ok(exclusive_subscribers) => {
-                    match exclusive_subscribers.entry(component_id) {
+                    match self.subscribers.entry(component_id) {
                         Entry::Vacant(es) => {es.insert(send.clone());},
                         Entry::Occupied(mut e) => {return Err("Sub_ID in use");}
                         }
-                },
-                Err(e) => {println!("{:?}", e);return Err("Poison error")}
-            }
             Ok((self.global_send.clone(), receive))
         }
 
         fn subscribe(&mut self, sub_tag: &str, component_id: u64) -> Result<(), &str>{
-            match self.subscribers.get_mut(){
-                Ok(exclusive_subscribers) => {
-                    match self.feeds.get_mut(){
-                        Ok(exclusive_feeds) => {
-                            exclusive_feeds.entry(sub_tag.to_string())
-                            .and_modify(|vec| {
-                                if vec.contains(exclusive_subscribers.get(&component_id).unwrap()) {/*Should handle this case. TODO*/}
-                                else {vec.push(exclusive_subscribers.get(&component_id).unwrap().clone());}
-                             })
-                            .or_insert({let mut vec = Vec::new(); vec.push(exclusive_subscribers.get(&component_id).unwrap().clone()); vec});
-                        },
-                        Err(e) => {}
-                    }
-                },
-                Err(e) => {println!("{:?}", e);return Err("Poison error")}
-            }
+            let relevant_channel = self.subscribers.get(&component_id).unwrap().clone();
+            self.feeds.entry(sub_tag.to_string())
+            .and_modify(|channel_vec| {
+                if channel_vec.contains(&relevant_channel) {/*Should handle the case where the channel is already in the channel_vec. TODO*/}
+                else {channel_vec.push(relevant_channel.clone());} //Else add the channel to the channel_vec
+             })
+             //If the vec doesn't exist then make one with the channel
+            .or_insert(vec![relevant_channel]);
             Ok(())
         }
 
@@ -136,10 +121,7 @@ use std::collections::hash_map::{HashMap, Entry};
                 let msg = self.global_recv.recv().unwrap();
                 println!("{:?}", msg);
                 println!("meg_publish tag: {:?}  bus tag: {:?}  same? {:?}", msg.publish_tag, self.bus_id, msg.publish_tag==self.bus_id);
-                match self.subscribers.get_mut() {
-                    Ok(exclusive_subscribers) => if exclusive_subscribers.get(&msg.publisher)==None {/*drop(msg); continue;*/}
-                    Err(e) => {println!("{:?}", e);}
-                }
+                if self.subscribers.get(&msg.publisher)==None {/*drop(msg); continue;*/}
                 if msg.publish_tag == self.bus_id{
                     let pub_tag = msg.publish_tag.clone();
                     let pub_er = msg.publisher;
@@ -158,17 +140,12 @@ use std::collections::hash_map::{HashMap, Entry};
                         None => {}
                     }
                 } else {
-                    match self.feeds.get_mut(){
-                            Ok(exclusive_feeds) => {
-                                    match exclusive_feeds.get(&msg.publish_tag){
-                                        Some(feed_subscribers) => {
-                                            feed_subscribers.iter().for_each(|x| {
-                                                //println!("Sending {:?} to {:?}", msg);
-                                            x.send(msg.clone()).unwrap()})},
-                                        None => {drop(msg)}
-                                    }
-                            },
-                            Err (e) => {}
+                    match self.feeds.get(&msg.publish_tag){
+                        Some(feed_subscribers) => {
+                            feed_subscribers.iter().for_each(|x| {
+                                //println!("Sending {:?} to {:?}", msg);
+                            x.send(msg.clone()).unwrap()})},
+                        None => {drop(msg)}
                     }
                 }
 
