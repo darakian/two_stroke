@@ -8,14 +8,14 @@
 
 pub mod lfsr_rng{
 
-	pub struct stateful_lfsr{
+	pub struct StatefulLfsr{
 		state: u16,
 	}
 
-	impl stateful_lfsr{
+	impl StatefulLfsr{
 
-		pub fn new(seed: u16) -> stateful_lfsr{
-		stateful_lfsr{state: seed}
+		pub fn new(seed: u16) -> StatefulLfsr{
+		StatefulLfsr{state: seed}
 		}
 
 		pub fn step(&mut self){

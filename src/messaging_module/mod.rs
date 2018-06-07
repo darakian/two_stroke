@@ -132,7 +132,7 @@ use std::time::{Duration, Instant};
                 let msg = self.global_recv.recv().unwrap();
                 println!("{:?}", msg);
                 println!("meg_publish tag: {:?}  bus tag: {:?}  same? {:?}", msg.publish_tag, self.bus_id, msg.publish_tag==self.bus_id);
-                if self.subscribers.get(&msg.publisher)==None {/*drop(msg); continue;*/}
+                if self.subscribers.get(&msg.publisher)==None {/*REMOVED FOR TESTING drop(msg); continue;*/}
                 if msg.publish_tag == self.bus_id{
                     let pub_tag = msg.publish_tag.clone();
                     let pub_er = msg.publisher;
@@ -142,7 +142,10 @@ use std::time::{Duration, Instant};
                         match kind {
                             OmniPayload::Quit => return,
                             OmniPayload::Subscribe(sub_tag) => {
-                                self.subscribe(&sub_tag, pub_er);
+                                match self.subscribe(&sub_tag, pub_er){
+                                    Ok(value) => {/*Subscription passed. Send message back to subscriber*/},
+                                    Err(e) => {/*Subscription failed. Send message back to subscriber*/}
+                                };
                                 println!("Also here with {}", sub_tag);
                                 }
                             _ => {}
