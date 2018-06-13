@@ -6,5 +6,8 @@ authors = ["Jon Moroney <darakian@gmail.com>"]
 [dependencies]
 crossbeam-channel = "0.1"
 sdl2 = "0.31"
-cpal = "0.8.1"
-sample = "0.9.1"
+
+[dependencies.sdl2]
+version = ...
+default-features = false
+features = ["gfx"]
