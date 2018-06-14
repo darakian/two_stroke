@@ -20,9 +20,10 @@ fn main() {
     let h1 = thread::spawn(move || {
         count.run();
     });
+    let my_input = input_module::input_scanner::Inputmanager::new();
     //println!("Hello, world! {}", bad_rand.sample());
     mb.do_messaging();
     loop {
-        //input_scanner::print_scancodes();
+        my_input.print_scancodes();
     }
 }
