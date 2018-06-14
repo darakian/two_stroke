@@ -6,7 +6,7 @@
 // 	}
 // }
 
-pub mod lfsr_rng{
+pub mod bad_rng{
 
 	pub struct StatefulLfsr{
 		state: u16,
