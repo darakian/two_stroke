@@ -6,6 +6,9 @@ mod rng_module;
 use rng_module::bad_rng;
 use std::sync::Arc;
 use std::thread;
+mod input_module;
+use input_module::input_scanner;
+
 
 
 fn main() {
@@ -19,4 +22,7 @@ fn main() {
     });
     //println!("Hello, world! {}", bad_rand.sample());
     mb.do_messaging();
+    loop {
+        //input_scanner::print_scancodes();
+    }
 }

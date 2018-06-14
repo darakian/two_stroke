@@ -5,9 +5,8 @@ authors = ["Jon Moroney <darakian@gmail.com>"]
 
 [dependencies]
 crossbeam-channel = "0.1"
-sdl2 = "0.31"
 
 [dependencies.sdl2]
-version = ...
+version = "0.31"
 default-features = false
 features = ["gfx", "mixer"]
