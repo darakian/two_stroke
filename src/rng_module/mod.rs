@@ -1,11 +1,3 @@
-// fn main(){
-// 	//println!("Hello rust");
-// 	let mut my_random = k_random::WikiLsfr::new(4);
-// 	for i in 1..100{
-// 	println!("{}", my_random.sample());
-// 	}
-// }
-
 pub mod bad_rng{
 
 	pub struct StatefulLfsr{
