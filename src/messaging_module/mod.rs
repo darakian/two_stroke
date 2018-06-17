@@ -53,8 +53,13 @@ pub mod omnibus {
 extern crate crossbeam_channel;
 use std::sync::Arc;
 use self::crossbeam_channel::unbounded;
+use std::collections::HashSet;
 use std::collections::hash_map::{HashMap, Entry};
 use std::time::{Duration, Instant};
+extern crate sdl2;
+use self::sdl2::keyboard::Keycode;
+use self::sdl2::keyboard::Scancode;
+
 
     #[derive(Debug, Clone)]
     pub struct Message{
@@ -68,6 +73,7 @@ use std::time::{Duration, Instant};
     Quit,
     Subscribe(String),
     Tick(Instant),
+    Input(HashSet<Scancode>)
     // Move {publish_tag: String, object_tag: String, x: i32, y: i32 },
     // RNG {publish_tag: String, value: u16},
     // Write {publish_tag: String, Message: String},
@@ -82,6 +88,10 @@ use std::time::{Duration, Instant};
 
         pub fn new_tick(to: &str, from: u64, tick_time: Instant) -> Self{
             Message{publish_tag: to.to_string(), publisher: from, payload: Some(OmniPayload::Tick(tick_time))}
+        }
+
+        pub fn new_input(to: &str, from: u64, keys: HashSet<Scancode>) -> Self{
+            Message{publish_tag: to.to_string(), publisher: from, payload: Some(OmniPayload::Input(keys))}
         }
     }
 
@@ -98,15 +108,22 @@ use std::time::{Duration, Instant};
             let (send, receive) = unbounded::<Arc<Message>>();
             let mut bus = Omnibus{bus_id: bus_id.to_string(), global_recv: receive, global_send: send, subscribers: HashMap::new(), feeds: HashMap::new()};
             let (bus_self_tx, bus_self_rx) = bus.join(0).unwrap();
+            bus.feeds.entry("all".to_string()).or_insert(Vec::new());
             bus
         }
 
         pub fn join(&mut self, component_id: u64) -> Result<(crossbeam_channel::Sender<Arc<Message>>, crossbeam_channel::Receiver<Arc<Message>>), &str>{
             let (send, receive) = unbounded::<Arc<Message>>();
                     match self.subscribers.entry(component_id) {
-                        Entry::Vacant(es) => {es.insert(send.clone());},
+                        Entry::Vacant(es) => {
+                            es.insert(send.clone());
+                        },
                         Entry::Occupied(err) => {return Err("Sub_ID in use");}
                         }
+            match self.feeds.get_mut("all"){
+                Some(vec) => vec.push(send.clone()),
+                None => return Err("Error adding to feeds")
+            }
             Ok((self.global_send.clone(), receive))
         }
 
