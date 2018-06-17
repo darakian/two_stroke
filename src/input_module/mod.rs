@@ -46,16 +46,16 @@ pub mod input_scanner {
         }
 
         pub fn run(&self){
-            println!(">>> 0");
+            //println!(">>> 0");
             loop{
-                println!(">>> 1");
+                //println!(">>> 1");
                 let msg = self.reciever.recv().unwrap();
                 match msg.payload{
                     Some(ref kind) => {
                     match kind {
                         OmniPayload::Quit => return,
                         OmniPayload::Tick(now) => {
-                            println!(">>> 2");
+                            //println!(">>> 2");
                             self.sender.send(
                                 Arc::new(omnibus::Message::new_input("logic", self.message_id, self.pressed_scancode_set())))
                             .unwrap();
