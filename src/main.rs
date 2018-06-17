@@ -14,9 +14,9 @@ use input_module::input_scanner;
 fn main() {
     let mut mb = omnibus::Omnibus::new("bus");
 
-    let count = clock_module::clock::TheCount::new(Duration::new(1, 0), 10, mb.join(10).unwrap());
-    let mut bad_rand = bad_rng::StatefulLfsr::new(11, 11, mb.join(11).unwrap());
-    let my_input = input_module::input_scanner::Inputmanager::new(12, mb.join(12).unwrap());
+    let count = clock_module::clock::TheCount::new(Duration::new(1, 0), 10, &mut mb);
+    let mut bad_rand = bad_rng::StatefulLfsr::new(11, 11, &mut mb);
+    let my_input = input_module::input_scanner::Inputmanager::new(12, &mut mb);
 
 
     mb.publish(Arc::new(omnibus::Message::new_sub("bus", 2, "test")));
@@ -24,6 +24,9 @@ fn main() {
     let h1 = thread::spawn(move || {
         count.run();
     });
-    mb.do_messaging();
+    let h2 = thread::spawn(move || {
+        mb.do_messaging();
+    });
     my_input.run();
+
 }

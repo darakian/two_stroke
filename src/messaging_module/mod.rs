@@ -108,7 +108,6 @@ use self::sdl2::keyboard::Scancode;
             let (send, receive) = unbounded::<Arc<Message>>();
             let mut bus = Omnibus{bus_id: bus_id.to_string(), global_recv: receive, global_send: send, subscribers: HashMap::new(), feeds: HashMap::new()};
             let (bus_self_tx, bus_self_rx) = bus.join(0).unwrap();
-            bus.feeds.entry("all".to_string()).or_insert(Vec::new());
             bus
         }
 
@@ -117,13 +116,13 @@ use self::sdl2::keyboard::Scancode;
                     match self.subscribers.entry(component_id) {
                         Entry::Vacant(es) => {
                             es.insert(send.clone());
-                        },
+                            },
                         Entry::Occupied(err) => {return Err("Sub_ID in use");}
                         }
-            match self.feeds.get_mut("all"){
-                Some(vec) => vec.push(send.clone()),
-                None => return Err("Error adding to feeds")
-            }
+
+            self.feeds.entry("all".to_string())
+            .and_modify(|vec| {vec.push(send.clone())})
+            .or_insert(Vec::new());
             Ok((self.global_send.clone(), receive))
         }
 

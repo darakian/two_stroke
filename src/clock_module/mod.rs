@@ -4,7 +4,7 @@ pub mod clock {
     use std::sync::Arc;
     extern crate crossbeam_channel;
     use messaging_module::omnibus;
-    use messaging_module::omnibus::Message;
+    use messaging_module::omnibus::{Message, OmniPayload, Omnibus};
 
 
     pub struct TheCount{
@@ -16,7 +16,8 @@ pub mod clock {
     }
 
     impl TheCount{
-        pub fn new(step: Duration, id: u64, channels: (crossbeam_channel::Sender<Arc<Message>>, crossbeam_channel::Receiver<Arc<Message>>)) -> Self{
+        pub fn new(step: Duration, id: u64, message_bus: &mut Omnibus) -> Self{
+            let channels = message_bus.join(id).unwrap();
             TheCount{start_time: Instant::now(), tick_step: step, message_id: id, sender: channels.0, reciever: channels.1}
         }
 

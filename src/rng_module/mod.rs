@@ -2,7 +2,7 @@ pub mod bad_rng{
 	use std::sync::Arc;
     extern crate crossbeam_channel;
     use messaging_module::omnibus;
-    use messaging_module::omnibus::Message;
+	use messaging_module::omnibus::{Message, OmniPayload, Omnibus};
 
 	pub struct StatefulLfsr{
 		state: u16,
@@ -13,7 +13,8 @@ pub mod bad_rng{
 
 	impl StatefulLfsr{
 
-		pub fn new(seed: u16, id: u64, channels: (crossbeam_channel::Sender<Arc<Message>>, crossbeam_channel::Receiver<Arc<Message>>)) -> StatefulLfsr{
+		pub fn new(seed: u16, id: u64, message_bus: &mut Omnibus) -> StatefulLfsr{
+		let channels = message_bus.join(id).unwrap();
 		StatefulLfsr{state: seed, message_id: id, sender: channels.0, reciever: channels.1}
 		}
 
