@@ -60,11 +60,11 @@ use std::time::{Duration, Instant};
     pub struct Message{
         publish_tag: String,
         publisher: u64,
-        payload: Option<OmniPayload>
+        pub payload: Option<OmniPayload>
     }
 
 #[derive(Debug, Clone)]
- enum OmniPayload {
+ pub enum OmniPayload {
     Quit,
     Subscribe(String),
     Tick(Instant),

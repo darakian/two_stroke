@@ -6,7 +6,7 @@ pub mod input_scanner {
     use std::sync::Arc;
     extern crate crossbeam_channel;
     use messaging_module::omnibus;
-    use messaging_module::omnibus::Message;
+    use messaging_module::omnibus::{Message, OmniPayload};
 
     pub struct Inputmanager{
         last_key_state: HashSet<Scancode>,
@@ -36,12 +36,33 @@ pub mod input_scanner {
 
         fn newly_pressed(old: &HashSet<Scancode>, new: &HashSet<Scancode>) -> HashSet<Scancode> {
             new - old
-            // sugar for: new.difference(old).collect()
         }
 
-        pub fn print_scancodes(&self){
+        fn print_scancodes(&self){
             for code in Inputmanager::pressed_keycode_set(self){
                 println!("{:?}", code);
+            }
+        }
+
+        pub fn run(&self){
+            loop{
+                let msg = self.reciever.recv().unwrap();
+
+                match msg.payload{
+                    Some(ref kind) => {
+                    match kind {
+                        OmniPayload::Quit => return,
+                        OmniPayload::Tick(now) => {
+                            self.print_scancodes();
+                            println!("Sending input now: {:?}", now);
+                            }
+                        _ => {}
+                        }
+                    },
+                    None => {}
+                }
+
+
             }
         }
 

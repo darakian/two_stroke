@@ -15,8 +15,8 @@ fn main() {
     let mut mb = omnibus::Omnibus::new("bus");
 
     let count = clock_module::clock::TheCount::new(Duration::new(1, 0), 10, mb.join(10).unwrap());
-    let mut bad_rand = bad_rng::StatefulLfsr::new(11, 11, mb.join(10).unwrap());
-    let my_input = input_module::input_scanner::Inputmanager::new(12, mb.join(10).unwrap());
+    let mut bad_rand = bad_rng::StatefulLfsr::new(11, 11, mb.join(11).unwrap());
+    let my_input = input_module::input_scanner::Inputmanager::new(12, mb.join(12).unwrap());
 
 
     mb.publish(Arc::new(omnibus::Message::new_sub("bus", 2, "test")));
@@ -24,9 +24,6 @@ fn main() {
     let h1 = thread::spawn(move || {
         count.run();
     });
-    //println!("Hello, world! {}", bad_rand.sample());
     mb.do_messaging();
-    loop {
-        my_input.print_scancodes();
-    }
+    my_input.run();
 }
