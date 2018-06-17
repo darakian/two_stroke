@@ -12,9 +12,11 @@ use input_module::input_scanner;
 
 
 fn main() {
-    let mut bad_rand = bad_rng::StatefulLfsr::new(11);
     let mut mb = omnibus::Omnibus::new("bus");
+
     let count = clock_module::clock::TheCount::new(Duration::new(1, 0), 10, mb.join(10).unwrap());
+    let mut bad_rand = bad_rng::StatefulLfsr::new(11, 11, mb.join(10).unwrap());
+
     mb.publish(Arc::new(omnibus::Message::new_sub("bus", 2, "test")));
     bad_rand.step();
     let h1 = thread::spawn(move || {
