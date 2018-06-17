@@ -73,7 +73,9 @@ use self::sdl2::keyboard::Scancode;
     Quit,
     Subscribe(String),
     Tick(Instant),
-    Input(HashSet<Scancode>)
+    Input(HashSet<Scancode>),
+    RngRequest(),
+    Rng(u16),
     // Move {publish_tag: String, object_tag: String, x: i32, y: i32 },
     // RNG {publish_tag: String, value: u16},
     // Write {publish_tag: String, Message: String},
@@ -92,6 +94,14 @@ use self::sdl2::keyboard::Scancode;
 
         pub fn new_input(to: &str, from: u64, keys: HashSet<Scancode>) -> Self{
             Message{publish_tag: to.to_string(), publisher: from, payload: Some(OmniPayload::Input(keys))}
+        }
+
+        pub fn new_rng_request(from: u64) -> Self{
+            Message{publish_tag: "rng".to_string(), publisher: from, payload: Some(OmniPayload::RngRequest())}
+        }
+
+        pub fn new_rng(to: &str, from: u64, rng_value: u16) -> Self{
+            Message{publish_tag: to.to_string(), publisher: from, payload: Some(OmniPayload::Rng(rng_value))}
         }
     }
 

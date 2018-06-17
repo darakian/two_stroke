@@ -28,5 +28,26 @@ pub mod bad_rng{
 		self.step();
 		return current;
 		}
+
+		pub fn run(&mut self) {
+			loop{
+				let msg = self.reciever.recv().unwrap();
+				match msg.payload{
+                    Some(ref kind) => {
+                    match kind {
+                        OmniPayload::Quit => return,
+                        OmniPayload::RngRequest() => {
+							let rng_value = self.sample();
+							self.sender.send(
+								Arc::new(omnibus::Message::new_rng("rng", self.message_id, rng_value)))
+							.unwrap();
+						}
+                        _ => {}
+                        }
+                    },
+                    None => {}
+                }
+			}
+		}
 	}
 }
