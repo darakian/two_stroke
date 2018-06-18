@@ -36,11 +36,13 @@ pub mod bad_rng{
                     Some(ref kind) => {
                     match kind {
                         OmniPayload::Quit => return,
-                        OmniPayload::RngRequest() => {
-							let rng_value = self.sample();
-							self.sender.send(
-								Arc::new(omnibus::Message::new_rng("rng", self.message_id, rng_value)))
-							.unwrap();
+                        OmniPayload::RngRequest(count) => {
+							for _i in 0..*count {
+								let rng_value = self.sample();
+								self.sender.send(
+									Arc::new(omnibus::Message::new_rng("rng", self.message_id, rng_value)))
+								.unwrap();
+							}
 						}
                         _ => {}
                         }
