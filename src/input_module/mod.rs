@@ -39,11 +39,11 @@ pub mod input_scanner {
             new - old
         }
 
-        fn print_scancodes(&self){
-            for code in Inputmanager::pressed_keycode_set(self){
-                println!("{:?}", code);
-            }
-        }
+        // fn print_scancodes(&self){
+        //     for code in Inputmanager::pressed_keycode_set(self){
+        //         println!("{:?}", code);
+        //     }
+        // }
 
         pub fn run(&self){
             //println!(">>> 0");
