@@ -3,48 +3,6 @@ mod tests {
     use messaging_module::{Message, Omnibus};
     use std::thread;
 
-    #[test]
-    fn multi_read() {
-        // let mut mb = Omnibus::new("bus");
-        // mb.publish(Message::new("1",2));
-        // mb.publish(Message::new("1",2));
-        // mb.publish(Message::new("1",2));
-        // assert_eq!(mb.check_channel_len(), 3);
-        // let h1 = thread::spawn(move || {
-        //     mb.publish(Message::new("2",2));
-        //     mb.publish(Message::new("2",2));
-        //     mb.publish(Message::new("2",2));
-        //     mb
-        // });
-        // let mut mb = h1.join().unwrap();
-        // let h2 = thread::spawn(move || {
-        //     mb.publish(Message::new("3",2));
-        //     mb.publish(Message::new("3",2));
-        //     mb.publish(Message::new("3",2));
-        //     mb
-        // });
-        // let mut mb = h2.join().unwrap();
-        // let h3 = thread::spawn(move || {
-        //     mb.publish(Message::new("4",2));
-        //     mb.publish(Message::new("4",2));
-        //     mb.publish(Message::new("4",2));
-        //     mb
-        // });
-        // let mut mb = h3.join().unwrap();
-        // mb.publish(Message::new("bus",2));
-        //
-        // let (send1, recv1) = mb.join(7).unwrap();
-        // mb.subscribe("3", 7).unwrap();
-        // let (send2, recv2) = mb.join(8).unwrap();
-        // mb.subscribe("3", 8).unwrap();
-        // mb.do_messaging();
-        // for element in recv1.try_iter(){
-        //     println!(">>>recv1: {:?}", element);
-        // }
-        // for element in recv2.try_iter(){
-        //     println!(">>>recv:2 {:?}", element);
-        // }
-    }
 }
 
 
