@@ -1,12 +1,13 @@
+mod common;
 mod messaging_module;
-use messaging_module::omnibus;
 mod clock_module;
-use std::time::Duration;
+mod input_module;
 mod rng_module;
+use messaging_module::omnibus;
+use std::time::Duration;
 use rng_module::bad_rng;
 use std::sync::Arc;
 use std::thread;
-mod input_module;
 use input_module::input_scanner;
 
 

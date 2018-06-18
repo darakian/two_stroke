@@ -14,9 +14,7 @@ use self::crossbeam_channel::unbounded;
 use std::collections::HashSet;
 use std::collections::hash_map::{HashMap, Entry};
 use std::time::{Duration, Instant};
-extern crate sdl2;
-use self::sdl2::keyboard::Keycode;
-use self::sdl2::keyboard::Scancode;
+use common::player_action::PlayerInput;
 
 
     #[derive(Debug, Clone)]
@@ -31,8 +29,8 @@ use self::sdl2::keyboard::Scancode;
     Quit,
     Subscribe(String),
     Tick(Instant),
-    Input(HashSet<Scancode>),
-    RngRequest(),
+    Input(PlayerInput),
+    RngRequest(u8),
     Rng(u16),
     // Move {publish_tag: String, object_tag: String, x: i32, y: i32 },
     // RNG {publish_tag: String, value: u16},
@@ -50,12 +48,12 @@ use self::sdl2::keyboard::Scancode;
             Message{publish_tag: to.to_string(), publisher: from, payload: Some(OmniPayload::Tick(tick_time))}
         }
 
-        pub fn new_input(to: &str, from: u64, keys: HashSet<Scancode>) -> Self{
+        pub fn new_input(to: &str, from: u64, keys: PlayerInput) -> Self{
             Message{publish_tag: to.to_string(), publisher: from, payload: Some(OmniPayload::Input(keys))}
         }
 
-        pub fn new_rng_request(from: u64) -> Self{
-            Message{publish_tag: "rng".to_string(), publisher: from, payload: Some(OmniPayload::RngRequest())}
+        pub fn new_rng_request(from: u64, count: u8) -> Self{
+            Message{publish_tag: "rng".to_string(), publisher: from, payload: Some(OmniPayload::RngRequest(count))}
         }
 
         pub fn new_rng(to: &str, from: u64, rng_value: u16) -> Self{

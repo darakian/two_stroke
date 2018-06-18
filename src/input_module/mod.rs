@@ -7,6 +7,7 @@ pub mod input_scanner {
     extern crate crossbeam_channel;
     use messaging_module::omnibus;
     use messaging_module::omnibus::{Message, OmniPayload, Omnibus};
+    use common::player_action::PlayerInput;
 
     pub struct Inputmanager{
         last_key_state: HashSet<Scancode>,
@@ -39,25 +40,29 @@ pub mod input_scanner {
             new - old
         }
 
-        // fn print_scancodes(&self){
-        //     for code in Inputmanager::pressed_keycode_set(self){
-        //         println!("{:?}", code);
-        //     }
-        // }
-
         pub fn run(&self){
-            //println!(">>> 0");
             loop{
-                //println!(">>> 1");
                 let msg = self.reciever.recv().unwrap();
                 match msg.payload{
                     Some(ref kind) => {
                     match kind {
                         OmniPayload::Quit => return,
                         OmniPayload::Tick(now) => {
-                            //println!(">>> 2");
+                            let mut x_val=0;
+                            let mut y_val=0;
+                            let mut jump = false;
+                            let mut shoot = false;
+                            for key in self.pressed_keycode_set(){
+                                if key==sdl2::keyboard::Keycode::W{y_val+=1}
+                                if key==sdl2::keyboard::Keycode::S{y_val-=1}
+                                if key==sdl2::keyboard::Keycode::A{x_val-=1}
+                                if key==sdl2::keyboard::Keycode::D{x_val+=1}
+                                if key==sdl2::keyboard::Keycode::Space{jump=true}
+                                if key==sdl2::keyboard::Keycode::LShift{shoot=true}
+                                if key==sdl2::keyboard::Keycode::RShift{shoot=true}
+                            }
                             self.sender.send(
-                                Arc::new(omnibus::Message::new_input("logic", self.message_id, self.pressed_scancode_set())))
+                                Arc::new(omnibus::Message::new_input("logic", self.message_id, PlayerInput::new())))
                             .unwrap();
                             }
                         _ => {}
