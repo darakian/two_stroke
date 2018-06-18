@@ -20,12 +20,14 @@ fn main() {
 
 
     mb.publish(Arc::new(omnibus::Message::new_sub("bus", 2, "test")));
-    bad_rand.step();
-    let h1 = thread::spawn(move || {
+    let thread1 = thread::spawn(move || {
         count.run();
     });
-    let h2 = thread::spawn(move || {
+    let thread2 = thread::spawn(move || {
         mb.do_messaging();
+    });
+    let thread2 = thread::spawn(move || {
+        bad_rand.run();
     });
     my_input.run();
 
