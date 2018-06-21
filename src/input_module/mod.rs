@@ -62,7 +62,7 @@ pub mod input_scanner {
                                 if key==sdl2::keyboard::Keycode::RShift{shoot=true}
                             }
                             self.sender.send(
-                                Arc::new(omnibus::Message::new_input("logic", self.message_id, PlayerInput::new())))
+                                Arc::new(omnibus::Message::new_input("logic", self.message_id, PlayerInput::new(x_val, y_val, jump, shoot))))
                             .unwrap();
                             }
                         _ => {}

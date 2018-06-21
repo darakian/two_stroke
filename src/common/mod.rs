@@ -2,28 +2,21 @@ pub mod player_action {
 
     #[derive(Debug, Clone)]
     pub struct PlayerInput{
-        movement: Direction,
+        xmovement: Direction,
+        ymovement: Direction,
         jump: bool,
         shoot: bool,
     }
 
     impl PlayerInput{
-        pub fn new(x_val: u8, y_val: u8, jumping: bool, shooting: bool) -> Self{
-
+        pub fn new(x_val: i16, y_val: i16, jumping: bool, shooting: bool) -> Self{
+            PlayerInput{xmovement: Direction::XDirection{x: x_val}, ymovement: Direction::YDirection{y: y_val}, jump: jumping, shoot: shooting}
         }
-
     }
 
     #[derive(Debug, Clone)]
     pub enum Direction{
-        Neutral(),
-        Up(),
-        UpLeft(),
-        UpRight(),
-        Left(),
-        Right(),
-        Down(),
-        DownLeft(),
-        DownRight(),
+        XDirection{x: i16},
+        YDirection{y: i16},
     }
 }
