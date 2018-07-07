@@ -11,7 +11,6 @@ pub mod input_scanner {
 
     pub struct Inputmanager{
         last_key_state: HashSet<Scancode>,
-        sld_context: sdl2::Sdl,
         event_pump: sdl2::EventPump,
         message_id: u64,
         sender: crossbeam_channel::Sender<Arc<Message>>,
@@ -19,41 +18,47 @@ pub mod input_scanner {
     }
 
     impl Inputmanager{
-        pub fn new(id: u64, message_bus: &mut Omnibus) -> Inputmanager{
+        pub fn new(id: u64, message_bus: &mut Omnibus, events: sdl2::EventPump) -> Inputmanager{
             let channels = message_bus.join(id).unwrap();
-            let context = sdl2::init().unwrap();
-            let events = context.event_pump().unwrap();
-            Inputmanager{last_key_state: HashSet::new(), sld_context: context, event_pump: events, message_id: id, sender: channels.0, reciever: channels.1}
+            Inputmanager{last_key_state: HashSet::new(), event_pump: events, message_id: id, sender: channels.0, reciever: channels.1}
         }
 
-        fn pressed_scancode_set(&self) -> HashSet<Scancode> {
-            self.event_pump.keyboard_state().pressed_scancodes().collect()
+        fn pressed_scancode_set(&mut self) -> HashSet<Scancode> {
+            let result = self.event_pump.keyboard_state().pressed_scancodes().collect();
+            println!("In pressed scancode: {:?}", result);
+            result
         }
 
-        fn pressed_keycode_set(&self) -> HashSet<Keycode> {
-            self.event_pump.keyboard_state().pressed_scancodes()
+        fn pressed_keycode_set(&mut self) -> HashSet<Keycode> {
+            let result = self.event_pump.keyboard_state().pressed_scancodes()
                 .filter_map(Keycode::from_scancode)
-                .collect()
+                .collect();
+            println!("In pressed keycode: {:?}", result);
+            result
         }
 
         fn newly_pressed(old: &HashSet<Scancode>, new: &HashSet<Scancode>) -> HashSet<Scancode> {
             new - old
         }
 
-        pub fn run(&self){
+        pub fn run(&mut self){
             loop{
                 let msg = self.reciever.recv().unwrap();
+                //println!(">>>>>>>>loop msg {:?}", msg);
                 match msg.payload{
                     Some(ref kind) => {
                     match kind {
                         OmniPayload::Quit => return,
                         OmniPayload::Tick(now) => {
+                            //println!(">>>>>>>>loop tick {:?}", now);
                             let mut x_val=0;
                             let mut y_val=0;
                             let mut jump = false;
                             let mut shoot = false;
                             for key in self.pressed_keycode_set(){
-                                if key==sdl2::keyboard::Keycode::W{y_val+=1}
+                                if key==sdl2::keyboard::Keycode::W{
+                                    println!("Here");
+                                    y_val+=1}
                                 if key==sdl2::keyboard::Keycode::S{y_val-=1}
                                 if key==sdl2::keyboard::Keycode::A{x_val-=1}
                                 if key==sdl2::keyboard::Keycode::D{x_val+=1}
