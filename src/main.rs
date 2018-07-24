@@ -19,10 +19,11 @@ use sdl2::keyboard::Keycode;
 
 
 fn main() {
+    //Create two_stroke objects
     let mut mb = omnibus::Omnibus::new("bus");
     let count = clock_module::clock::TheCount::new(Duration::new(1, 0), 10, &mut mb);
     let mut bad_rand = rng_module::bad_rng::StatefulLfsr::new(11, 11, &mut mb);
-
+    //Create sdl window to allow for input capture and display
     let sdl_context = sdl2::init().unwrap();
     let video_subsystem = sdl_context.video().unwrap();
     let window = video_subsystem.window("two_stroke demo", 800, 600)
@@ -35,21 +36,20 @@ fn main() {
     canvas.present();
     let mut events = sdl_context.event_pump().unwrap();
 
-    //Create window to get keyboard input
 
 
     loop{
         for event in events.poll_iter(){
             match event{ //Inpiut handling goes here now and send input out to logic
-                Event::KeyUp {..} => {println!("KeyUp = {:?}", event);},
-                Event::KeyDown {..} => {println!("KeyDown = {:?}", event);},
+                Event::KeyUp {..}/*filter for relevant keys here*/ => {println!("KeyUp = {:?}", event);},
+                Event::KeyDown {..}/*filter for relevant keys here*/ => {println!("KeyDown = {:?}", event);},
                 Event::Quit {..} => {exit(1)},
                 _ => {println!("Unknown Event == {:?}", event);}
             }
         }
         //Call render here
-        //canvas.present();
-        //::std::thread::sleep(Duration::new(0, 1_000_000_000u32 / 60));
+        //canvas.present(); with rendered content
+        //Wait on clock tick here
     }
 
 
