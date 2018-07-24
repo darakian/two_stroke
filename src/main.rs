@@ -38,9 +38,9 @@ fn main() {
         for event in events.poll_iter(){
             println!("Event = {:?}", event);
             match event{
-                KeyDown => {println!("Keyevent");},
-                Quit => {exit(1)},
-                _ => {println!("event == {:?}", event);}
+                Event::KeyDown {..} => {println!("Keyevent = {:?}", event);},
+                Event::Quit {..} => {exit(1)},
+                _ => {println!("Unknown Event == {:?}", event);}
             }
         }
         //canvas.present();
