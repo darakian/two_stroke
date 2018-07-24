@@ -58,7 +58,7 @@ fn main() {
 
 
     let mut my_input = input_module::input_scanner::Inputmanager::new(12, &mut mb, events);
-    mb.publish(Arc::new(omnibus::Message::new_sub("bus", 2, "test")));
+    //mb.publish(Arc::new(omnibus::Message::new_sub("bus", 2, "test", Instant::now())));
     my_input.run();
 
 }

@@ -16,13 +16,13 @@ use std::collections::hash_map::{HashMap, Entry};
 use std::time::{Duration, Instant};
 use common::player_action::PlayerInput;
 
-
-    #[derive(Debug, Clone)]
-    pub struct Message{
-        publish_tag: String,
-        publisher: u64,
-        pub payload: Option<OmniPayload>
-    }
+#[derive(Debug, Clone)]
+pub struct Message{
+    publish_tag: String,
+    publisher: u64,
+    send_timestamp: Instant,
+    pub payload: Option<OmniPayload>
+}
 
 #[derive(Debug, Clone)]
  pub enum OmniPayload {
@@ -40,28 +40,29 @@ use common::player_action::PlayerInput;
 }
 
     impl Message {
-        pub fn new_sub(to: &str, from: u64, subscribe_string: &str) -> Self{
-            Message{publish_tag: to.to_string(), publisher: from, payload: Some(OmniPayload::Subscribe(subscribe_string.to_string()))}
+        pub fn new_sub(to: &str, from: u64, subscribe_string: &str, timestamp: Instant) -> Self{
+            Message{publish_tag: to.to_string(), publisher: from, send_timestamp: timestamp, payload: Some(OmniPayload::Subscribe(subscribe_string.to_string()))}
         }
 
         pub fn new_tick(to: &str, from: u64, tick_time: Instant) -> Self{
-            Message{publish_tag: to.to_string(), publisher: from, payload: Some(OmniPayload::Tick(tick_time))}
+            Message{publish_tag: to.to_string(), publisher: from, send_timestamp: tick_time, payload: Some(OmniPayload::Tick(tick_time))}
         }
 
-        pub fn new_input(to: &str, from: u64, keys: PlayerInput) -> Self{
-            Message{publish_tag: to.to_string(), publisher: from, payload: Some(OmniPayload::Input(keys))}
+        pub fn new_input(to: &str, from: u64, keys: PlayerInput, timestamp: Instant) -> Self{
+            Message{publish_tag: to.to_string(), publisher: from, send_timestamp: timestamp, payload: Some(OmniPayload::Input(keys))}
         }
 
-        pub fn new_rng_request(from: u64, count: u8) -> Self{
-            Message{publish_tag: "rng".to_string(), publisher: from, payload: Some(OmniPayload::RngRequest(count))}
+        pub fn new_rng_request(from: u64, count: u8, timestamp: Instant) -> Self{
+            Message{publish_tag: "rng".to_string(), publisher: from, send_timestamp: timestamp, payload: Some(OmniPayload::RngRequest(count))}
         }
 
-        pub fn new_rng(to: &str, from: u64, rng_value: u16) -> Self{
-            Message{publish_tag: to.to_string(), publisher: from, payload: Some(OmniPayload::Rng(rng_value))}
+        pub fn new_rng(to: &str, from: u64, rng_value: u16, timestamp: Instant) -> Self{
+            Message{publish_tag: to.to_string(), publisher: from, send_timestamp: timestamp, payload: Some(OmniPayload::Rng(rng_value))}
         }
     }
 
     pub struct Omnibus{
+        current_tick: Instant,
         bus_id: String,
         global_recv: crossbeam_channel::Receiver<Arc<Message>>,
         global_send: crossbeam_channel::Sender<Arc<Message>>,
@@ -72,7 +73,7 @@ use common::player_action::PlayerInput;
     impl Omnibus{
         pub fn new(bus_id: &str) -> Self{
             let (send, receive) = unbounded::<Arc<Message>>();
-            let mut bus = Omnibus{bus_id: bus_id.to_string(), global_recv: receive, global_send: send, subscribers: HashMap::new(), feeds: HashMap::new()};
+            let mut bus = Omnibus{current_tick: Instant::now(), bus_id: bus_id.to_string(), global_recv: receive, global_send: send, subscribers: HashMap::new(), feeds: HashMap::new()};
             let (bus_self_tx, bus_self_rx) = bus.join(0).unwrap();
             bus
         }

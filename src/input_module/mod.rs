@@ -8,19 +8,21 @@ pub mod input_scanner {
     use messaging_module::omnibus;
     use messaging_module::omnibus::{Message, OmniPayload, Omnibus};
     use common::player_action::PlayerInput;
+    use std::time::{Instant};
 
     pub struct Inputmanager{
         last_key_state: HashSet<Scancode>,
         event_pump: sdl2::EventPump,
         message_id: u64,
         sender: crossbeam_channel::Sender<Arc<Message>>,
-        reciever: crossbeam_channel::Receiver<Arc<Message>>
+        reciever: crossbeam_channel::Receiver<Arc<Message>>,
+        current_tick: Instant,
     }
 
     impl Inputmanager{
         pub fn new(id: u64, message_bus: &mut Omnibus, events: sdl2::EventPump) -> Inputmanager{
             let channels = message_bus.join(id).unwrap();
-            Inputmanager{last_key_state: HashSet::new(), event_pump: events, message_id: id, sender: channels.0, reciever: channels.1}
+            Inputmanager{last_key_state: HashSet::new(), event_pump: events, message_id: id, sender: channels.0, reciever: channels.1, current_tick: Instant::now()}
         }
 
         fn pressed_scancode_set(&mut self) -> HashSet<Scancode> {
@@ -50,6 +52,7 @@ pub mod input_scanner {
                     match kind {
                         OmniPayload::Quit => return,
                         OmniPayload::Tick(now) => {
+                            self.current_tick = *now;
                             //println!(">>>>>>>>loop tick {:?}", now);
                             let mut x_val=0;
                             let mut y_val=0;
@@ -67,7 +70,7 @@ pub mod input_scanner {
                                 if key==sdl2::keyboard::Keycode::RShift{shoot=true}
                             }
                             self.sender.send(
-                                Arc::new(omnibus::Message::new_input("logic", self.message_id, PlayerInput::new(x_val, y_val, jump, shoot))))
+                                Arc::new(omnibus::Message::new_input("logic", self.message_id, PlayerInput::new(x_val, y_val, jump, shoot), self.current_tick)))
                             .unwrap();
                             }
                         _ => {}
