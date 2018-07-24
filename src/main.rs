@@ -32,18 +32,19 @@ fn main() {
     let mut events = sdl_context.event_pump().unwrap();
 
     //Create window to get keyboard input
-    println!("We got text input? {:?}", events.is_event_enabled(sdl2::event::EventType::TextInput));
 
 
     loop{
         for event in events.poll_iter(){
             println!("Event = {:?}", event);
             match event{
-                Quit => {exit(1)},
                 KeyDown => {println!("Keyevent");},
+                Quit => {exit(1)},
                 _ => {println!("event == {:?}", event);}
             }
         }
+        //canvas.present();
+        ::std::thread::sleep(Duration::new(0, 1_000_000_000u32 / 60));
     }
 
     let mut mb = omnibus::Omnibus::new("bus");
