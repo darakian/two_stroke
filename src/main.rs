@@ -23,6 +23,10 @@ fn main() {
     let mut mb = omnibus::Omnibus::new("bus");
     let count = clock_module::clock::TheCount::new(Duration::new(1, 0), 10, &mut mb);
     let mut bad_rand = rng_module::bad_rng::StatefulLfsr::new(11, 11, &mut mb);
+    //Start threads for two_stroke objects
+    let thread1 = thread::spawn(move || {count.run();});
+    let thread2 = thread::spawn(move || {mb.do_messaging();});
+    let thread3 = thread::spawn(move || {bad_rand.run();});
     //Create sdl window to allow for input capture and display
     let sdl_context = sdl2::init().unwrap();
     let video_subsystem = sdl_context.video().unwrap();
@@ -48,24 +52,13 @@ fn main() {
             }
         }
         //Call render here
-        //canvas.present(); with rendered content
+        //canvas.present(); with rendered content. Possibly hand canvas off to the renderer
         //Wait on clock tick here
     }
 
 
     let mut my_input = input_module::input_scanner::Inputmanager::new(12, &mut mb, events);
-
-
     mb.publish(Arc::new(omnibus::Message::new_sub("bus", 2, "test")));
-    let thread1 = thread::spawn(move || {
-        count.run();
-    });
-    let thread2 = thread::spawn(move || {
-        mb.do_messaging();
-    });
-    let thread2 = thread::spawn(move || {
-        bad_rand.run();
-    });
     my_input.run();
 
 }
