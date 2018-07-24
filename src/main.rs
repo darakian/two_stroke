@@ -19,9 +19,13 @@ use sdl2::keyboard::Keycode;
 
 
 fn main() {
+    let mut mb = omnibus::Omnibus::new("bus");
+    let count = clock_module::clock::TheCount::new(Duration::new(1, 0), 10, &mut mb);
+    let mut bad_rand = rng_module::bad_rng::StatefulLfsr::new(11, 11, &mut mb);
+
     let sdl_context = sdl2::init().unwrap();
     let video_subsystem = sdl_context.video().unwrap();
-    let window = video_subsystem.window("rust-sdl2 demo", 800, 600)
+    let window = video_subsystem.window("two_stroke demo", 800, 600)
         .position_centered()
         .build()
         .unwrap();
@@ -36,21 +40,19 @@ fn main() {
 
     loop{
         for event in events.poll_iter(){
-            println!("Event = {:?}", event);
-            match event{
-                Event::KeyDown {..} => {println!("Keyevent = {:?}", event);},
+            match event{ //Inpiut handling goes here now and send input out to logic
+                Event::KeyUp {..} => {println!("KeyUp = {:?}", event);},
+                Event::KeyDown {..} => {println!("KeyDown = {:?}", event);},
                 Event::Quit {..} => {exit(1)},
                 _ => {println!("Unknown Event == {:?}", event);}
             }
         }
+        //Call render here
         //canvas.present();
-        ::std::thread::sleep(Duration::new(0, 1_000_000_000u32 / 60));
+        //::std::thread::sleep(Duration::new(0, 1_000_000_000u32 / 60));
     }
 
-    let mut mb = omnibus::Omnibus::new("bus");
 
-    let count = clock_module::clock::TheCount::new(Duration::new(1, 0), 10, &mut mb);
-    let mut bad_rand = rng_module::bad_rng::StatefulLfsr::new(11, 11, &mut mb);
     let mut my_input = input_module::input_scanner::Inputmanager::new(12, &mut mb, events);
 
 
