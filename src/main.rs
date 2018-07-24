@@ -35,7 +35,7 @@ fn main() {
         .build()
         .unwrap();
     let mut canvas = window.into_canvas().build().unwrap();
-    canvas.set_draw_color(Color::RGB(0, 255, 255));
+    canvas.set_draw_color(Color::RGB(0, 0, 0));
     canvas.clear();
     canvas.present();
     let mut events = sdl_context.event_pump().unwrap();
