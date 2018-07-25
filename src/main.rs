@@ -1,7 +1,6 @@
 mod common;
 mod messaging_module;
 mod clock_module;
-mod input_module;
 mod rng_module;
 use messaging_module::omnibus;
 use messaging_module::omnibus::{Message, OmniPayload, Omnibus};
@@ -24,7 +23,7 @@ fn main() {
     //Create two_stroke objects
     let mut message_bus = omnibus::Omnibus::new("bus");
     let (main_send, main_recv) = message_bus.join(1).unwrap();
-    let count = clock_module::clock::TheCount::new(Duration::new(1, 0), 10, &mut message_bus);
+    let count = clock_module::clock::TheCount::new(Duration::new(0, 16000000), 10, &mut message_bus);
     let mut bad_rand = rng_module::bad_rng::StatefulLfsr::new(11, 11, &mut message_bus);
     //Start threads for two_stroke objects
     let thread1 = thread::spawn(move || {count.run();});
