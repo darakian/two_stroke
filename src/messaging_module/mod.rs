@@ -94,12 +94,11 @@ pub struct Message{
         }
 
         fn subscribe(&mut self, sub_tag: &str, component_id: u64) -> Result<(), &str>{
-            println!("Adding {:?} to tag {}", component_id, sub_tag);
+            //println!("Adding {:?} to tag {}", component_id, sub_tag);
             let relevant_channel = match self.subscribers.get(&component_id){
                 Some(channel) => channel.clone(),
                 None => return Err("No such channel")
             };
-            println!("Here?");
             self.feeds.entry(sub_tag.to_string())
             .and_modify(|channel_vec| {
                 if channel_vec.contains(&relevant_channel) {/*Should handle the case where the channel is already in the channel_vec. TODO*/}
@@ -113,15 +112,15 @@ pub struct Message{
         pub fn do_messaging(&mut self) {
             loop {
                 let msg = self.global_recv.recv().unwrap();
-                println!("{:?}", msg);
-                println!("meg_publish tag: {:?}  bus tag: {:?}  same? {:?}", msg.publish_tag, self.bus_id, msg.publish_tag==self.bus_id);
+                //println!("{:?}", msg);
+                //println!("meg_publish tag: {:?}  bus tag: {:?}  same? {:?}", msg.publish_tag, self.bus_id, msg.publish_tag==self.bus_id);
                 if self.subscribers.get(&msg.publisher)==None {/*REMOVED FOR TESTING drop(msg); continue;*/}
                 if msg.publish_tag == self.bus_id{
                     let pub_tag = msg.publish_tag.clone();
                     let pub_er = msg.publisher;
                     match msg.payload{
                         Some(ref kind) => {
-                        println!("HERE {:?}", kind);
+                        //println!("HERE {:?}", kind);
                         match kind {
                             OmniPayload::Quit => return,
                             OmniPayload::Subscribe(sub_tag) => {
@@ -129,7 +128,7 @@ pub struct Message{
                                     Ok(value) => {/*Subscription passed. Send message back to subscriber*/},
                                     Err(e) => {/*Subscription failed. Send message back to subscriber*/}
                                 };
-                                println!("Also here with {}", sub_tag);
+                                //println!("Also here with {}", sub_tag);
                                 }
                             _ => {}
                             }

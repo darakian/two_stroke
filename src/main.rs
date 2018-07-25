@@ -54,7 +54,7 @@ fn main() {
         canvas.fill_rect(Rect::new(10, 10, 780, 580));
         canvas.set_draw_color(Color::RGB(0, 0, 0));
         for event in events.poll_iter(){
-            match event{ //Inpiut handling goes here now and send input out to logic
+            match event{ //Input handling goes here now and send input out to logic
                 Event::KeyUp {keycode: Some(Keycode::W), ..} | Event::KeyDown {keycode: Some(Keycode::W), ..} => {
                     println!("Key W: {:?}", event);},
                 Event::KeyUp {keycode: Some(Keycode::A), ..} | Event::KeyDown {keycode: Some(Keycode::A), ..} => {
@@ -69,7 +69,7 @@ fn main() {
         }
         //Call render here
         canvas.present(); //with rendered content. Possibly hand canvas off to the renderer
-        ::std::thread::sleep(Duration::new(0, 1_000_000_000u32 / 10));
+        ::std::thread::sleep(Duration::new(0, 1_000_000_000u32 / 5));
         //Wait on clock tick here
     }
 
