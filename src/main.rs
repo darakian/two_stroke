@@ -49,15 +49,20 @@ fn main() {
         i = i.wrapping_add(1);
         j = j.wrapping_add(i);
         k = k.wrapping_add(j);
-        println!("i:{}, j:{}, k:{}", i, j, k);
         canvas.clear();
         canvas.set_draw_color(Color::RGB(i, j, k));
         canvas.fill_rect(Rect::new(10, 10, 780, 580));
         canvas.set_draw_color(Color::RGB(0, 0, 0));
         for event in events.poll_iter(){
             match event{ //Inpiut handling goes here now and send input out to logic
-                Event::KeyUp {keycode: Some(Keycode::W), ..}/*filter for relevant keys here*/ => {println!("KeyUp = {:?}", event);},
-                Event::KeyDown {..}/*filter for relevant keys here*/ => {println!("KeyDown = {:?}", event);},
+                Event::KeyUp {keycode: Some(Keycode::W), ..} | Event::KeyDown {keycode: Some(Keycode::W), ..} => {
+                    println!("Key W: {:?}", event);},
+                Event::KeyUp {keycode: Some(Keycode::A), ..} | Event::KeyDown {keycode: Some(Keycode::A), ..} => {
+                    println!("KeyUp A: {:?}", event);},
+                Event::KeyUp {keycode: Some(Keycode::S), ..} | Event::KeyDown {keycode: Some(Keycode::S), ..} => {
+                    println!("KeyUp S: {:?}", event);},
+                Event::KeyUp {keycode: Some(Keycode::D), ..} | Event::KeyDown {keycode: Some(Keycode::D), ..} => {
+                    println!("KeyUp D: {:?}", event);},
                 Event::Quit {..} => {exit(1)},
                 _ => {}
             }
