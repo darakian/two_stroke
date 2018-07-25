@@ -16,6 +16,7 @@ use sdl2::event::Event;
 use sdl2::event::EventType;
 use sdl2::pixels::Color;
 use sdl2::keyboard::Keycode;
+use sdl2::rect::Rect;
 
 
 fn main() {
@@ -41,18 +42,29 @@ fn main() {
     let mut events = sdl_context.event_pump().unwrap();
 
 
-
+    let mut i: u8 = 1;
+    let mut j: u8 = 2;
+    let mut k: u8 = 3;
     loop{
+        i = i.wrapping_add(1);
+        j = j.wrapping_add(i);
+        k = k.wrapping_add(j);
+        println!("i:{}, j:{}, k:{}", i, j, k);
+        canvas.clear();
+        canvas.set_draw_color(Color::RGB(i, j, k));
+        canvas.fill_rect(Rect::new(10, 10, 780, 580));
+        canvas.set_draw_color(Color::RGB(0, 0, 0));
         for event in events.poll_iter(){
             match event{ //Inpiut handling goes here now and send input out to logic
-                Event::KeyUp {..}/*filter for relevant keys here*/ => {println!("KeyUp = {:?}", event);},
+                Event::KeyUp {keycode: Some(Keycode::W), ..}/*filter for relevant keys here*/ => {println!("KeyUp = {:?}", event);},
                 Event::KeyDown {..}/*filter for relevant keys here*/ => {println!("KeyDown = {:?}", event);},
                 Event::Quit {..} => {exit(1)},
-                _ => {println!("Unknown Event == {:?}", event);}
+                _ => {}
             }
         }
         //Call render here
-        //canvas.present(); with rendered content. Possibly hand canvas off to the renderer
+        canvas.present(); //with rendered content. Possibly hand canvas off to the renderer
+        ::std::thread::sleep(Duration::new(0, 1_000_000_000u32 / 10));
         //Wait on clock tick here
     }
 
