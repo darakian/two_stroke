@@ -47,6 +47,7 @@ fn main() {
     let mut i: u8 = 1;
     let mut j: u8 = 2;
     let mut k: u8 = 3;
+    //Begin main loop
     loop{
         i = i.wrapping_add(1);
         j = j.wrapping_add(2);
@@ -81,8 +82,8 @@ fn main() {
     }
 
 
-    let mut my_input = input_module::input_scanner::Inputmanager::new(12, &mut message_bus, events);
+    //let mut my_input = input_module::input_scanner::Inputmanager::new(12, &mut message_bus, events);
     //message_bus.publish(Arc::new(omnibus::Message::new_sub("bus", 2, "test", Instant::now())));
-    my_input.run();
+    //my_input.run();
 
 }
