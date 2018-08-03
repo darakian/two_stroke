@@ -2,6 +2,7 @@ mod common;
 mod messaging_module;
 mod clock_module;
 mod rng_module;
+mod render_module;
 use messaging_module::omnibus;
 use messaging_module::omnibus::{Message, OmniPayload, Omnibus};
 use std::time::Duration;
@@ -27,8 +28,7 @@ fn main() {
     let mut bad_rand = rng_module::bad_rng::StatefulLfsr::new(11, 11, &mut message_bus);
     //Start threads for two_stroke objects
     let thread1 = thread::spawn(move || {count.run();});
-    let thread2 = thread::spawn(move || {message_bus.do_messaging();});
-    let thread3 = thread::spawn(move || {bad_rand.run();});
+    let thread2 = thread::spawn(move || {bad_rand.run();});
     //Create sdl window to allow for input capture and display
     let sdl_context = sdl2::init().unwrap();
     let video_subsystem = sdl_context.video().unwrap();
@@ -37,10 +37,14 @@ fn main() {
         .build()
         .unwrap();
     let mut canvas = window.into_canvas().build().unwrap();
+    //let renderer = render_core::new(canvas, id, &mut message_bus);
     canvas.set_draw_color(Color::RGB(0, 0, 0));
     canvas.clear();
     canvas.present();
+    let pp_render = render_module::render::PixelPusher::new(canvas, 12, &mut message_bus);
     let mut events = sdl_context.event_pump().unwrap();
+    let mbus_thread = thread::spawn(move || {message_bus.do_messaging();});
+
 
 
     let mut i: u8 = 1;
