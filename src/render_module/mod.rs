@@ -22,5 +22,13 @@ pub mod render{
             let channels = message_bus.join(id).unwrap();
             PixelPusher{canvas: canvas, message_id: id, sender: channels.0, reciever: channels.1}
         }
+
+        pub fn run(&self){
+            // Collect messages for new objects and for objects which are to be removed
+            // Load/Drop objects as needed from each layer
+            // From back layer forward paint canvas
+            // Render
+            // Wait for next tick
+        }
     }
 }
