@@ -41,7 +41,7 @@ fn main() {
     canvas.set_draw_color(Color::RGB(0, 0, 0));
     canvas.clear();
     canvas.present();
-    let pp_render = render_module::render::PixelPusher::new(canvas, 12, &mut message_bus);
+    //let pp_render = render_module::render::PixelPusher::new(canvas, 12, &mut message_bus);
     let mut events = sdl_context.event_pump().unwrap();
     let mbus_thread = thread::spawn(move || {message_bus.do_messaging();});
 
@@ -50,14 +50,15 @@ fn main() {
     let mut i: u8 = 1;
     let mut j: u8 = 2;
     let mut k: u8 = 3;
-    //Begin main loop
+    
+    //Begin main game loop
     loop{
         i = i.wrapping_add(1);
         j = j.wrapping_add(2);
         k = k.wrapping_add(3);
         canvas.clear();
         canvas.set_draw_color(Color::RGB(i, j, k));
-        canvas.fill_rect(Rect::new(10, 10, 780, 580)).unwrap();
+        canvas.fill_rect(Rect::new(0, 0, 800, 600)).unwrap();
         canvas.set_draw_color(Color::RGB(0, 0, 0));
         for event in events.poll_iter(){
             match event{ //Input handling goes here now and send input out to logic
@@ -75,6 +76,8 @@ fn main() {
         }
         //Call render here
         canvas.present(); //with rendered content. Possibly hand canvas off to the renderer
+        
+
         //Wait on clock tick here
         for msg in main_recv.iter(){
             match msg.payload{
