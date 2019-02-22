@@ -24,7 +24,7 @@ pub mod render{
         }
 
         pub fn run(&self){
-            // Collect messages for new objects and for objects which are to be removed
+            // Collect messages for new objects and for objects which are to be added/removed
             // Load/Drop objects as needed from each layer
             // From back layer forward paint canvas
             // Render
