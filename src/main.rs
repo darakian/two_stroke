@@ -2,7 +2,6 @@ mod common;
 mod messaging_module;
 mod clock_module;
 mod rng_module;
-mod render_module;
 use messaging_module::omnibus;
 use messaging_module::omnibus::{Message, OmniPayload, Omnibus};
 use std::time::Duration;
@@ -31,35 +30,29 @@ fn main() {
     let thread2 = thread::spawn(move || {bad_rand.run();});
     //Create sdl window to allow for input capture and display
     let sdl_context = sdl2::init().unwrap();
-    let video_subsystem = sdl_context.video().unwrap();
-    let window = video_subsystem.window("two_stroke demo", 800, 600)
-        .position_centered()
-        .build()
-        .unwrap();
+    let window = sdl_context.video().unwrap().window("two_stroke demo", 800, 600)
+                .position_centered()
+                .build()
+                .unwrap();
     let mut canvas = window.into_canvas().build().unwrap();
-    //let renderer = render_core::new(canvas, id, &mut message_bus);
-    canvas.set_draw_color(Color::RGB(0, 0, 0));
-    canvas.clear();
-    canvas.present();
-    //let pp_render = render_module::render::PixelPusher::new(canvas, 12, &mut message_bus);
+    
+
     let mut events = sdl_context.event_pump().unwrap();
     let mbus_thread = thread::spawn(move || {message_bus.do_messaging();});
 
 
 
+
+    
+    //Begin main game loop
+    //SDL needs to be on the main thread so video/audio/input are all here.
+
+    //Dummy video variables
     let mut i: u8 = 1;
     let mut j: u8 = 2;
     let mut k: u8 = 3;
-    
-    //Begin main game loop
     loop{
-        i = i.wrapping_add(1);
-        j = j.wrapping_add(2);
-        k = k.wrapping_add(3);
-        canvas.clear();
-        canvas.set_draw_color(Color::RGB(i, j, k));
-        canvas.fill_rect(Rect::new(0, 0, 800, 600)).unwrap();
-        canvas.set_draw_color(Color::RGB(0, 0, 0));
+        //Check Input and send messages
         for event in events.poll_iter(){
             match event{ //Input handling goes here now and send input out to logic
                 Event::KeyUp {keycode: Some(Keycode::W), ..} | Event::KeyDown {keycode: Some(Keycode::W), ..} => {
@@ -74,8 +67,19 @@ fn main() {
                 _ => {}
             }
         }
-        //Call render here
-        canvas.present(); //with rendered content. Possibly hand canvas off to the renderer
+        //Read messages and configure variables as needed
+
+        //Render phase
+        i = i.wrapping_add(1);
+        j = j.wrapping_add(2);
+        k = k.wrapping_add(3);
+        canvas.clear();
+        canvas.set_draw_color(Color::RGB(0, 0, 0));
+        canvas.set_draw_color(Color::RGB(i, j, k));
+        canvas.fill_rect(Rect::new(0, 0, 800, 600)).unwrap();
+        canvas.set_draw_color(Color::RGB(0, 0, 0));
+        canvas.present();
+        
         
 
         //Wait on clock tick here
