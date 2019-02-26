@@ -2,6 +2,7 @@ mod common;
 mod messaging_module;
 mod clock_module;
 mod rng_module;
+mod composer_module;
 use messaging_module::omnibus;
 use messaging_module::omnibus::{Message, OmniPayload, Omnibus};
 use std::time::Duration;
@@ -26,16 +27,19 @@ fn main() {
     let count = clock_module::clock::TheCount::new(Duration::new(0, 16666666), 10, &mut message_bus);
     let mut bad_rand = rng_module::bad_rng::StatefulLfsr::new(11, 11, &mut message_bus);
     //Start threads for two_stroke objects
-    let thread1 = thread::spawn(move || {count.run();});
-    let thread2 = thread::spawn(move || {bad_rand.run();});
+    let _thread1 = thread::spawn(move || {count.run();});
+    let _thread2 = thread::spawn(move || {bad_rand.run();});
     //Create sdl window to allow for input capture and display
+    
     let sdl_context = sdl2::init().unwrap();
     let window = sdl_context.video().unwrap().window("two_stroke demo", 800, 600)
                 .position_centered()
                 .build()
                 .unwrap();
     let mut canvas = window.into_canvas().build().unwrap();
-    
+    let texture_creator = canvas.texture_creator();
+    let texture_composer = composer_module::composer::texture_composer::new(texture_creator, 12, &mut message_bus);
+    let _thread3 = thread::spawn(move || {texture_composer.run();});
 
     let mut events = sdl_context.event_pump().unwrap();
     let mbus_thread = thread::spawn(move || {message_bus.do_messaging();});
