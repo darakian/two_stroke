@@ -25,7 +25,7 @@ pub mod clock {
             loop{
                 self.sender.send(
                     Arc::new(omnibus::Message::new_tick("all", self.message_id, Instant::now())))
-                .unwrap();
+                .expect("Error sending tick");
 
                 thread::sleep(self.tick_step);
             }

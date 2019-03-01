@@ -74,19 +74,19 @@ pub struct Message{
         pub fn new(bus_id: &str) -> Self{
             let (send, receive) = unbounded::<Arc<Message>>();
             let mut bus = Omnibus{current_tick: Instant::now(), bus_id: bus_id.to_string(), global_recv: receive, global_send: send, subscribers: HashMap::new(), feeds: HashMap::new()};
-            let (bus_self_tx, bus_self_rx) = bus.join(0).unwrap();
+            let (bus_self_tx, bus_self_rx) = bus.join(0).expect("Unable to bind omnibus");
             bus
         }
 
         pub fn join(&mut self, component_id: u64) -> Result<(crossbeam_channel::Sender<Arc<Message>>, crossbeam_channel::Receiver<Arc<Message>>), &str>{
             let (send, receive) = unbounded::<Arc<Message>>();
-                    match self.subscribers.entry(component_id) {
-                        Entry::Vacant(es) => {
-                            es.insert(send.clone());
-                            },
-                        Entry::Occupied(err) => {return Err("Sub_ID in use");}
-                        }
-
+            // println!("Attempting to join component {:?}", component_id);
+            match self.subscribers.entry(component_id) {
+                Entry::Vacant(es) => {
+                    es.insert(send.clone());
+                    },
+                Entry::Occupied(err) => {return Err("Sub_ID in use");}
+                }
             self.feeds.entry("all".to_string())
             .and_modify(|vec| {vec.push(send.clone())})
             .or_insert(Vec::new());
@@ -111,9 +111,9 @@ pub struct Message{
 
         pub fn do_messaging(&mut self) {
             loop {
-                let msg = self.global_recv.recv().unwrap();
-                //println!("{:?}", msg);
-                //println!("meg_publish tag: {:?}  bus tag: {:?}  same? {:?}", msg.publish_tag, self.bus_id, msg.publish_tag==self.bus_id);
+                let msg = self.global_recv.recv().expect("Error receving message in do_messaging");
+                // println!("{:?}", msg);
+                // println!("meg_publish tag: {:?}  bus tag: {:?}  same? {:?}", msg.publish_tag, self.bus_id, msg.publish_tag==self.bus_id);
                 if self.subscribers.get(&msg.publisher)==None {/*REMOVED FOR TESTING drop(msg); continue;*/}
                 if msg.publish_tag == self.bus_id{
                     let pub_tag = msg.publish_tag.clone();
@@ -139,8 +139,13 @@ pub struct Message{
                     match self.feeds.get(&msg.publish_tag){
                         Some(feed_subscribers) => {
                             feed_subscribers.iter().for_each(|x| {
-                                //println!("Sending {:?} to {:?}", msg);
-                            x.send(Arc::clone(&msg)).unwrap()})},
+                                // println!("Sending {:?} to {:?}", msg, x);
+                            match x.send(Arc::clone(&msg)){
+                                Ok(_v) => {},
+                                Err(e) => println!("Error sending message {:?}", e),
+                                }
+                            })
+                        },
                         None => {drop(msg)}
                     }
                 }
