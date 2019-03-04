@@ -4,7 +4,7 @@ pub mod clock {
     use std::sync::Arc;
     extern crate crossbeam_channel;
     use messaging_module::omnibus;
-    use messaging_module::omnibus::{Message, OmniPayload, Omnibus};
+    use messaging_module::omnibus::{Message, Omnibus};
 
 
     pub struct TheCount<'a>{

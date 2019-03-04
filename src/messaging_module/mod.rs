@@ -11,9 +11,8 @@ pub mod omnibus {
 extern crate crossbeam_channel;
 use std::sync::Arc;
 use self::crossbeam_channel::unbounded;
-use std::collections::HashSet;
 use std::collections::hash_map::{HashMap, Entry};
-use std::time::{Duration, Instant};
+use std::time::Instant;
 use common::player_action::PlayerInput;
 
 #[derive(Debug, Clone)]
@@ -75,16 +74,16 @@ pub struct Message<'a>{
         feeds: HashMap<String, Vec<crossbeam_channel::Sender<Arc<Message<'a>>>>>
     }
 
-    impl <'a, 'b: 'a> Omnibus<'a>{
+    impl Omnibus{
         pub fn new(bus_id: &str) -> Self{
-            let (send, receive) = unbounded::<Arc<Message<'b>>>();
+            let (send, receive) = unbounded::<Arc<Message>>();
             let mut bus = Omnibus{current_tick: Instant::now(), bus_id: bus_id.to_string(), global_recv: receive, global_send: send, subscribers: HashMap::new(), feeds: HashMap::new()};
             let (bus_self_tx, bus_self_rx) = bus.join(0).expect("Unable to bind omnibus");
             bus
         }
 
         pub fn join(&mut self, component_id: u64) -> Result<(crossbeam_channel::Sender<Arc<Message>>, crossbeam_channel::Receiver<Arc<Message>>), &str>{
-            let (send, receive) = unbounded::<Arc<Message<'a>>>();
+            let (send, receive) = unbounded::<Arc<Message>>();
             // println!("Attempting to join component {:?}", component_id);
             match self.subscribers.entry(component_id) {
                 Entry::Vacant(es) => {
@@ -159,7 +158,7 @@ pub struct Message<'a>{
 
 
         //Testing methods
-        pub fn publish(&mut self, m: Arc<Message<'a>>) -> (){
+        pub fn publish(&mut self, m: Arc<Message>) -> (){
             self.global_send.send(m).unwrap();
         }
 

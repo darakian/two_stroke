@@ -1,13 +1,12 @@
 pub mod composer {
-    use std::time::{Duration, Instant};
-    use std::thread;
+    use std::time::Instant;
     use std::sync::Arc;
     extern crate crossbeam_channel;
     use messaging_module::omnibus;
     use messaging_module::omnibus::{Message, OmniPayload, Omnibus};
 
 
-    pub struct layer_composer<'layer_msg: >{
+    pub struct LayerComposer<'layer_msg: >{
         layer_buffer: [[u8; 256]; 240],
         message_id: u64,
         sender: crossbeam_channel::Sender<Arc<Message<'layer_msg>>>,
@@ -15,11 +14,11 @@ pub mod composer {
         current_tick: Instant,
     }
 
-    impl <'layer_msg: > layer_composer<'layer_msg>{
+    impl <'layer_msg: > LayerComposer<'layer_msg>{
         pub fn new(id: u64, message_bus: &'layer_msg mut Omnibus) -> Self{
             let channels = message_bus.join(id).expect("Unable to join channel");
             let mut buffer = [[0; 256]; 240];
-            layer_composer{layer_buffer: buffer, message_id: id, sender: channels.0, reciever: channels.1, current_tick: Instant::now()}
+            LayerComposer{layer_buffer: buffer, message_id: id, sender: channels.0, reciever: channels.1, current_tick: Instant::now()}
         }
 
         pub fn run(&mut self){

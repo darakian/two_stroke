@@ -4,15 +4,12 @@ mod clock_module;
 mod rng_module;
 mod composer_module;
 use messaging_module::omnibus;
-use messaging_module::omnibus::{Message, OmniPayload, Omnibus};
+use messaging_module::omnibus::OmniPayload;
 use std::time::Duration;
-use std::sync::Arc;
 use std::thread;
 use std::process::exit;
 
 extern crate sdl2;
-use self::sdl2::keyboard::Scancode;
-use std::collections::HashSet;
 use sdl2::event::Event;
 use sdl2::pixels::Color;
 use sdl2::keyboard::Keycode;
@@ -24,7 +21,7 @@ fn main() {
     let mut message_bus = omnibus::Omnibus::new("bus");
     let (main_send, main_recv) = message_bus.join(1).unwrap();
     let mut bad_rand = rng_module::bad_rng::StatefulLfsr::new(11, 11, &mut message_bus);
-    let mut layer_composer = composer_module::composer::layer_composer::new(13, &mut message_bus);
+    let mut layer_composer = composer_module::composer::LayerComposer::new(13, &mut message_bus);
     let count = clock_module::clock::TheCount::new(Duration::new(0, 16666666), 10, &mut message_bus);
     //Start threads for two_stroke objects
     let _thread1 = thread::spawn(move || {count.run();});
