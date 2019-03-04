@@ -17,21 +17,22 @@ use std::time::{Duration, Instant};
 use common::player_action::PlayerInput;
 
 #[derive(Debug, Clone)]
-pub struct Message{
+pub struct Message<'a>{
     publish_tag: String,
     publisher: u64,
     send_timestamp: Instant,
-    pub payload: Option<OmniPayload>
+    pub payload: Option<OmniPayload<'a>>
 }
 
 #[derive(Debug, Clone)]
- pub enum OmniPayload {
+ pub enum OmniPayload <'a>{
     Quit,
     Subscribe(String),
     Tick(Instant),
     Input(PlayerInput),
     RngRequest(u8),
     Rng(u16),
+    Layer(&'a [[u8; 256]; 240]),
     // Move {publish_tag: String, object_tag: String, x: i32, y: i32 },
     // RNG {publish_tag: String, value: u16},
     // Write {publish_tag: String, Message: String},
@@ -39,7 +40,7 @@ pub struct Message{
     // Sprite {publish_tag: String, object_tag: String,x: i32, y: i32, pixels: Vec<u8>}
 }
 
-    impl Message {
+    impl <'msg, 'layer: 'msg> Message<'msg>{
         pub fn new_sub(to: &str, from: u64, subscribe_string: &str, timestamp: Instant) -> Self{
             Message{publish_tag: to.to_string(), publisher: from, send_timestamp: timestamp, payload: Some(OmniPayload::Subscribe(subscribe_string.to_string()))}
         }
@@ -58,6 +59,10 @@ pub struct Message{
 
         pub fn new_rng(to: &str, from: u64, rng_value: u16, timestamp: Instant) -> Self{
             Message{publish_tag: to.to_string(), publisher: from, send_timestamp: timestamp, payload: Some(OmniPayload::Rng(rng_value))}
+        }
+
+        pub fn new_layer(buffer: &'layer [[u8; 256]; 240], from: u64, timestamp: Instant) -> Self{
+            Message{publish_tag: "main".to_string(), publisher: from, send_timestamp: timestamp, payload: Some(OmniPayload::Layer(buffer))}
         }
     }
 
