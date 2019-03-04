@@ -66,25 +66,25 @@ pub struct Message<'a>{
         }
     }
 
-    pub struct Omnibus{
+    pub struct Omnibus<'a>{
         current_tick: Instant,
         bus_id: String,
-        global_recv: crossbeam_channel::Receiver<Arc<Message>>,
-        global_send: crossbeam_channel::Sender<Arc<Message>>,
-        subscribers:  HashMap<u64, (crossbeam_channel::Sender<Arc<Message>>)>,
-        feeds: HashMap<String, Vec<crossbeam_channel::Sender<Arc<Message>>>>
+        global_recv: crossbeam_channel::Receiver<Arc<Message<'a>>>,
+        global_send: crossbeam_channel::Sender<Arc<Message<'a>>>,
+        subscribers:  HashMap<u64, (crossbeam_channel::Sender<Arc<Message<'a>>>)>,
+        feeds: HashMap<String, Vec<crossbeam_channel::Sender<Arc<Message<'a>>>>>
     }
 
-    impl Omnibus{
+    impl <'a, 'b: 'a> Omnibus<'a>{
         pub fn new(bus_id: &str) -> Self{
-            let (send, receive) = unbounded::<Arc<Message>>();
+            let (send, receive) = unbounded::<Arc<Message<'b>>>();
             let mut bus = Omnibus{current_tick: Instant::now(), bus_id: bus_id.to_string(), global_recv: receive, global_send: send, subscribers: HashMap::new(), feeds: HashMap::new()};
             let (bus_self_tx, bus_self_rx) = bus.join(0).expect("Unable to bind omnibus");
             bus
         }
 
         pub fn join(&mut self, component_id: u64) -> Result<(crossbeam_channel::Sender<Arc<Message>>, crossbeam_channel::Receiver<Arc<Message>>), &str>{
-            let (send, receive) = unbounded::<Arc<Message>>();
+            let (send, receive) = unbounded::<Arc<Message<'a>>>();
             // println!("Attempting to join component {:?}", component_id);
             match self.subscribers.entry(component_id) {
                 Entry::Vacant(es) => {
@@ -159,7 +159,7 @@ pub struct Message<'a>{
 
 
         //Testing methods
-        pub fn publish(&mut self, m: Arc<Message>) -> (){
+        pub fn publish(&mut self, m: Arc<Message<'a>>) -> (){
             self.global_send.send(m).unwrap();
         }
 
