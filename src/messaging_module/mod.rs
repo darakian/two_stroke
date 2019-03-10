@@ -16,22 +16,22 @@ use std::time::Instant;
 use common::player_action::PlayerInput;
 
 #[derive(Debug, Clone)]
-pub struct Message<'a>{
+pub struct Message{
     publish_tag: String,
     publisher: u64,
     send_timestamp: Instant,
-    pub payload: Option<OmniPayload<'a>>
+    pub payload: Option<OmniPayload>
 }
 
 #[derive(Debug, Clone)]
- pub enum OmniPayload <'a>{
+ pub enum OmniPayload {
     Quit,
     Subscribe(String),
     Tick(Instant),
     Input(PlayerInput),
     RngRequest(u8),
     Rng(u16),
-    Layer(&'a [[u8; 256]; 240]),
+    Layer([[u8; 256]; 240]),
     // Move {publish_tag: String, object_tag: String, x: i32, y: i32 },
     // RNG {publish_tag: String, value: u16},
     // Write {publish_tag: String, Message: String},
@@ -39,7 +39,7 @@ pub struct Message<'a>{
     // Sprite {publish_tag: String, object_tag: String,x: i32, y: i32, pixels: Vec<u8>}
 }
 
-    impl <'msg, 'layer: 'msg> Message<'msg>{
+    impl Message{
         pub fn new_sub(to: &str, from: u64, subscribe_string: &str, timestamp: Instant) -> Self{
             Message{publish_tag: to.to_string(), publisher: from, send_timestamp: timestamp, payload: Some(OmniPayload::Subscribe(subscribe_string.to_string()))}
         }
@@ -60,18 +60,18 @@ pub struct Message<'a>{
             Message{publish_tag: to.to_string(), publisher: from, send_timestamp: timestamp, payload: Some(OmniPayload::Rng(rng_value))}
         }
 
-        pub fn new_layer(buffer: &'layer [[u8; 256]; 240], from: u64, timestamp: Instant) -> Self{
+        pub fn new_layer(buffer: [[u8; 256]; 240], from: u64, timestamp: Instant) -> Self{
             Message{publish_tag: "main".to_string(), publisher: from, send_timestamp: timestamp, payload: Some(OmniPayload::Layer(buffer))}
         }
     }
 
-    pub struct Omnibus<'a>{
+    pub struct Omnibus{
         current_tick: Instant,
         bus_id: String,
-        global_recv: crossbeam_channel::Receiver<Arc<Message<'a>>>,
-        global_send: crossbeam_channel::Sender<Arc<Message<'a>>>,
-        subscribers:  HashMap<u64, (crossbeam_channel::Sender<Arc<Message<'a>>>)>,
-        feeds: HashMap<String, Vec<crossbeam_channel::Sender<Arc<Message<'a>>>>>
+        global_recv: crossbeam_channel::Receiver<Arc<Message>>,
+        global_send: crossbeam_channel::Sender<Arc<Message>>,
+        subscribers:  HashMap<u64, (crossbeam_channel::Sender<Arc<Message>>)>,
+        feeds: HashMap<String, Vec<crossbeam_channel::Sender<Arc<Message>>>>
     }
 
     impl Omnibus{

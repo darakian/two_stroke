@@ -7,16 +7,16 @@ pub mod clock {
     use messaging_module::omnibus::{Message, Omnibus};
 
 
-    pub struct TheCount<'a>{
+    pub struct TheCount{
         start_time: Instant,
         tick_step: Duration,
         message_id: u64,
-        sender: crossbeam_channel::Sender<Arc<Message<'a>>>,
-        reciever: crossbeam_channel::Receiver<Arc<Message<'a>>>
+        sender: crossbeam_channel::Sender<Arc<Message>>,
+        reciever: crossbeam_channel::Receiver<Arc<Message>>
     }
 
-    impl <'a> TheCount<'a>{
-        pub fn new(step: Duration, id: u64, message_bus: &'a mut Omnibus) -> Self{
+    impl  TheCount{
+        pub fn new(step: Duration, id: u64, message_bus: &mut Omnibus) -> Self{
             let channels = message_bus.join(id).unwrap();
             TheCount{start_time: Instant::now(), tick_step: step, message_id: id, sender: channels.0, reciever: channels.1}
         }
