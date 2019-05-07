@@ -67,8 +67,8 @@ impl fmt::Debug for OmniPayload{
             Message{publish_tag: to.to_string(), publisher: from, send_timestamp: timestamp, payload: Some(OmniPayload::Rng(rng_value))}
         }
 
-        pub fn new_layer(buffer: [[u8; 256]; 240], from: u64, timestamp: Instant) -> Self{
-            Message{publish_tag: "main".to_string(), publisher: from, send_timestamp: timestamp, payload: Some(OmniPayload::Layer(buffer))}
+        pub fn new_layer(to: &str, buffer: [[u8; 256]; 240], from: u64, timestamp: Instant) -> Self{
+            Message{publish_tag: to.to_string(), publisher: from, send_timestamp: timestamp, payload: Some(OmniPayload::Layer(buffer))}
         }
     }
 
