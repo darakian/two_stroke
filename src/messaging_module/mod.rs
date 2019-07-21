@@ -10,6 +10,7 @@ mod tests {
 pub mod omnibus {
 extern crate crossbeam_channel;
 use std::sync::Arc;
+use std::fmt;
 use self::crossbeam_channel::unbounded;
 use std::collections::hash_map::{HashMap, Entry};
 use std::time::Instant;
@@ -23,7 +24,7 @@ pub struct Message{
     pub payload: Option<OmniPayload>
 }
 
-#[derive(Debug, Clone)]
+#[derive(Clone)]
  pub enum OmniPayload {
     Quit,
     Subscribe(String),
@@ -37,6 +38,20 @@ pub struct Message{
     // Write {publish_tag: String, Message: String},
     // ChangeColor {publish_tag: String, object_tag: String, r: i32, g: i32, b: i32},
     // Sprite {publish_tag: String, object_tag: String,x: i32, y: i32, pixels: Vec<u8>}
+}
+
+impl fmt::Debug for OmniPayload{
+    fn fmt(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            OmniPayload::Quit => "Omnipaylod::Quit".fmt(formatter),
+            OmniPayload::Subscribe(String) => self.fmt(formatter),
+            OmniPayload::Tick(Instant) => self.fmt(formatter),
+            OmniPayload::Input(PlayerInput) => self.fmt(formatter),
+            OmniPayload::RngRequest(u8) => self.fmt(formatter),
+            OmniPayload::Rng(u16) => self.fmt(formatter),
+            _ => "Omnipaylod".fmt(formatter),
+        }
+    }
 }
 
     impl Message{
