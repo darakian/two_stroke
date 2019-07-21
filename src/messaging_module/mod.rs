@@ -8,7 +8,6 @@ mod tests {
 
 
 pub mod omnibus {
-extern crate crossbeam_channel;
 use std::sync::Arc;
 use std::fmt;
 use self::crossbeam_channel::unbounded;

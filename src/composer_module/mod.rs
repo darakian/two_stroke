@@ -1,7 +1,6 @@
 pub mod composer {
     use std::time::Instant;
     use std::sync::Arc;
-    extern crate crossbeam_channel;
     use messaging_module::omnibus;
     use messaging_module::omnibus::{Message, OmniPayload, Omnibus};
 

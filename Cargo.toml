@@ -2,9 +2,10 @@
 name = "two_stroke"
 version = "0.1.0"
 authors = ["Jon Moroney <darakian@gmail.com>"]
+edition = "2018"
 
 [dependencies]
-crossbeam-channel = "0.1"
+crossbeam-channel = "0.3.8"
 
 [dependencies.sdl2]
 version = "0.32"

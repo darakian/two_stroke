@@ -14,11 +14,13 @@ use sdl2::event::Event;
 use sdl2::pixels::Color;
 use sdl2::keyboard::Keycode;
 use sdl2::rect::Rect;
+use crossbeam_channel::unbounded;
 
 
 fn main() {
     //Create two_stroke objects
-    let mut message_bus = omnibus::Omnibus::new("bus");
+    let mut message_bus = omnibus::Omnibus::new("general_bus");
+    let mut render_channel = unbounded::<OmniPayload>();
     let (main_send, main_recv) = message_bus.join(1).unwrap();
     let mut bad_rand = rng_module::bad_rng::StatefulLfsr::new(11, 11, &mut message_bus);
     let mut layer_composer = composer_module::composer::LayerComposer::new(13, &mut message_bus);
