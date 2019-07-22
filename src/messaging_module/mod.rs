@@ -118,8 +118,7 @@ impl fmt::Debug for OmniPayload{
             };
             self.feeds.entry(sub_tag.to_string())
             .and_modify(|channel_vec| {
-                if channel_vec.contains(&relevant_channel) {/*Should handle the case where the channel is already in the channel_vec. TODO*/}
-                else {channel_vec.push(relevant_channel.clone());} //Else add the channel to the channel_vec
+                channel_vec.push(relevant_channel.clone());
              })
              //If the vec doesn't exist then make one with the channel
             .or_insert(vec![relevant_channel]);
@@ -131,7 +130,7 @@ impl fmt::Debug for OmniPayload{
                 let msg = self.global_recv.recv().expect("Error receving message in do_messaging");
                 // println!("{:?}", msg);
                 // println!("meg_publish tag: {:?}  bus tag: {:?}  same? {:?}", msg.publish_tag, self.bus_id, msg.publish_tag==self.bus_id);
-                if self.subscribers.get(&msg.publisher)==None {/*REMOVED FOR TESTING drop(msg); continue;*/}
+                if self.subscribers.get(&msg.publisher).is_none() {/*REMOVED FOR TESTING drop(msg); continue;*/}
                 if msg.publish_tag == self.bus_id{
                     let pub_tag = msg.publish_tag.clone();
                     let pub_er = msg.publisher;
