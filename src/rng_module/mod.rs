@@ -1,8 +1,8 @@
 pub mod bad_rng{
 	use std::sync::Arc;
     extern crate crossbeam_channel;
-    use messaging_module::omnibus;
-	use messaging_module::omnibus::{Message, OmniPayload, Omnibus};
+    use crate::messaging_module::omnibus;
+	use crate::messaging_module::omnibus::{Message, OmniPayload, Omnibus};
 	use std::time::{Instant};
 
 

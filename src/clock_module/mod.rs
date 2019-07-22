@@ -3,8 +3,8 @@ pub mod clock {
     use std::thread;
     use std::sync::Arc;
     extern crate crossbeam_channel;
-    use messaging_module::omnibus;
-    use messaging_module::omnibus::{Message, Omnibus};
+    use crate::messaging_module::omnibus;
+    use crate::messaging_module::omnibus::{Message, Omnibus};
 
 
     pub struct TheCount{

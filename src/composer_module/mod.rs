@@ -1,8 +1,8 @@
 pub mod composer {
     use std::time::Instant;
     use std::sync::Arc;
-    use messaging_module::omnibus;
-    use messaging_module::omnibus::{Message, OmniPayload, Omnibus};
+    use crate::messaging_module::omnibus;
+    use crate::messaging_module::omnibus::{Message, OmniPayload, Omnibus};
 
 
     pub struct LayerComposer{

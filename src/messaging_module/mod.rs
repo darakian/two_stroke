@@ -2,7 +2,6 @@
 mod tests {
     use messaging_module::{Message, Omnibus};
     use std::thread;
-
 }
 
 
@@ -10,10 +9,10 @@ mod tests {
 pub mod omnibus {
 use std::sync::Arc;
 use std::fmt;
-use self::crossbeam_channel::unbounded;
+use crossbeam_channel::unbounded;
 use std::collections::hash_map::{HashMap, Entry};
 use std::time::Instant;
-use common::player_action::PlayerInput;
+use crate::common::player_action::PlayerInput;
 
 #[derive(Debug, Clone)]
 pub struct Message{
