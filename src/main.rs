@@ -54,20 +54,27 @@ fn main() {
     let mut i: u8 = 1;
     let mut j: u8 = 2;
     let mut k: u8 = 3;
+    let mut x_offset: i32 = 0;
+    let mut y_offset: i32 = 0;
     loop{
         main_send.send(
                     Arc::new(omnibus::Message::new_layer("composer", frame_buffer, 0, current_time)))
                 .expect("Error sending tick");
         //Check Input and send messages
         for event in events.poll_iter(){
+            println!(">>> {:?}", event);
             match event{ //Input handling goes here now and send input out to logic
                 Event::KeyUp {keycode: Some(Keycode::W), ..} | Event::KeyDown {keycode: Some(Keycode::W), ..} => {
+                    y_offset-=2;
                     println!("Key W: {:?}", event);},
                 Event::KeyUp {keycode: Some(Keycode::A), ..} | Event::KeyDown {keycode: Some(Keycode::A), ..} => {
+                    x_offset-=2;
                     println!("Key A: {:?}", event);},
                 Event::KeyUp {keycode: Some(Keycode::S), ..} | Event::KeyDown {keycode: Some(Keycode::S), ..} => {
+                    y_offset+=2;
                     println!("Key S: {:?}", event);},
                 Event::KeyUp {keycode: Some(Keycode::D), ..} | Event::KeyDown {keycode: Some(Keycode::D), ..} => {
+                    x_offset+=2;
                     println!("Key D: {:?}", event);},
                 Event::Quit {..} => {exit(1)},
                 _ => {}
@@ -82,7 +89,7 @@ fn main() {
         canvas.clear();
         canvas.set_draw_color(Color::RGB(0, 0, 0));
         canvas.set_draw_color(Color::RGB(i, j, k));
-        canvas.fill_rect(Rect::new(0, 0, 800, 600)).unwrap();
+        canvas.fill_rect(Rect::new(0+x_offset, 0+y_offset, 800, 600)).unwrap();
         canvas.set_draw_color(Color::RGB(0, 0, 0));
         canvas.present();
 
