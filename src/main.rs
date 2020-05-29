@@ -35,6 +35,8 @@ fn main() {
     let _thread3 = thread::spawn(move || {layer_composer.run();});
     //Create sdl window to allow for input capture and display
 
+    let x_size = 800;
+    let y_size = 600;
     let sdl_context = sdl2::init().unwrap();
     let window = sdl_context.video().unwrap().window("two_stroke demo", 800, 600)
                 .position_centered()
@@ -60,8 +62,7 @@ fn main() {
     let mut i: u8 = 1;
     let mut j: u8 = 2;
     let mut k: u8 = 3;
-    let mut l: i32 = -800;
-    let mut m: i32 = -600;
+
     let mut x_offset: i32 = 0;
     let mut y_offset: i32 = 0;
     loop{
@@ -74,22 +75,22 @@ fn main() {
             match event{ //Input handling goes here now and send input out to logic
                 Event::KeyUp {keycode: Some(Keycode::W), ..} | Event::KeyDown {keycode: Some(Keycode::W), ..} => {
                     println!("Key W: {:?}", event);
-                    player_coords.1 = (player_coords.1 - 5)%800;
+                    player_coords.1 = (player_coords.1 - 3)%800;
                     println!("coords: {:?}", player_coords);
                 },
                 Event::KeyUp {keycode: Some(Keycode::A), ..} | Event::KeyDown {keycode: Some(Keycode::A), ..} => {
                     println!("Key A: {:?}", event);
-                    player_coords.0 = (player_coords.0 - 5)%600;
+                    player_coords.0 = (player_coords.0 - 3)%600;
                     println!("coords: {:?}", player_coords);
                 },
                 Event::KeyUp {keycode: Some(Keycode::S), ..} | Event::KeyDown {keycode: Some(Keycode::S), ..} => {
                     println!("Key S: {:?}", event);
-                    player_coords.1 = (player_coords.1 + 5)%800;
+                    player_coords.1 = (player_coords.1 + 3)%800;
                     println!("coords: {:?}", player_coords);
                 },
                 Event::KeyUp {keycode: Some(Keycode::D), ..} | Event::KeyDown {keycode: Some(Keycode::D), ..} => {
                     println!("Key D: {:?}", event);
-                    player_coords.0 = (player_coords.0 + 5)%600;
+                    player_coords.0 = (player_coords.0 + 3)%600;
                     println!("coords: {:?}", player_coords);
                 },
                 Event::Quit {..} => {exit(1)},
@@ -105,29 +106,19 @@ fn main() {
         i = i.wrapping_add(1);
         j = j.wrapping_add(2);
         k = k.wrapping_add(3);
-        match l {
-            -800..=799 => l = l+1,
-            800 => l = -800,
-            _ => l = -800,
-         }
-         match m {
-             _ => m = 0
-             // -800..=799 => m = m+1,
-             // 800 => m = -800,
-             // _ => m = -800,
-          }
+
         canvas.clear();
         canvas.set_draw_color(Color::RGB(0, 0, 0));
         canvas.set_draw_color(Color::RGB(i, j, k));
-        canvas.fill_rect(Rect::new(0+x_offset, 0+y_offset, 800, 600)).unwrap();
+        canvas.fill_rect(Rect::new(0+x_offset, 0+y_offset, x_size, y_size)).unwrap();
         canvas.set_draw_color(Color::RGB(0, 0, 0));
         canvas.fill_rect(Rect::new(player_coords.0, player_coords.1, 16, 16)).unwrap();
         canvas.present();
-        sweep(&mut canvas);
+        //sweep(&mut canvas);
 
 
         let layer = render_recv.recv();
-        //Wait on clock tick here
+        // Wait on clock tick here
         for msg in main_recv.iter(){
             match msg.payload{
                 Some(OmniPayload::Tick(now)) => {current_time = now; break}, //this breaks the iter loop and allows the outer loop to complete
