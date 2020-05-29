@@ -30,7 +30,7 @@ pub mod composer {
                 }
                 let send_buff = self.layer_buffer.clone();
                 self.sender.send(
-                    Arc::new(omnibus::Message::new_layer(send_buff, self.message_id,  self.current_tick)))
+                    Arc::new(omnibus::Message::new_layer("main", send_buff, self.message_id,  self.current_tick)))
                 .expect("Error sending layer reference");
 
                 for msg in self.reciever.iter(){

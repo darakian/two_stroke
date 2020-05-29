@@ -9,7 +9,11 @@ mod tests {
 pub mod omnibus {
 use std::sync::Arc;
 use std::fmt;
+<<<<<<< HEAD
 use crossbeam_channel::unbounded;
+=======
+use self::crossbeam_channel::unbounded;
+>>>>>>> 91f4454d02708857d0bbbd1dd936f3fc9b49a4a8
 use std::collections::hash_map::{HashMap, Entry};
 use std::time::Instant;
 use crate::common::player_action::PlayerInput;
@@ -39,6 +43,7 @@ pub struct Message{
 }
 
 impl fmt::Debug for OmniPayload{
+<<<<<<< HEAD
     fn fmt(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
         match self {
             OmniPayload::Quit => "Omnipaylod::Quit".fmt(formatter),
@@ -49,6 +54,10 @@ impl fmt::Debug for OmniPayload{
             OmniPayload::Rng(u16) => self.fmt(formatter),
             _ => "Omnipaylod".fmt(formatter),
         }
+=======
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "Omnipaylod: {:?}", self)
+>>>>>>> 91f4454d02708857d0bbbd1dd936f3fc9b49a4a8
     }
 }
 
@@ -73,8 +82,8 @@ impl fmt::Debug for OmniPayload{
             Message{publish_tag: to.to_string(), publisher: from, send_timestamp: timestamp, payload: Some(OmniPayload::Rng(rng_value))}
         }
 
-        pub fn new_layer(buffer: [[u8; 256]; 240], from: u64, timestamp: Instant) -> Self{
-            Message{publish_tag: "main".to_string(), publisher: from, send_timestamp: timestamp, payload: Some(OmniPayload::Layer(buffer))}
+        pub fn new_layer(to: &str, buffer: [[u8; 256]; 240], from: u64, timestamp: Instant) -> Self{
+            Message{publish_tag: to.to_string(), publisher: from, send_timestamp: timestamp, payload: Some(OmniPayload::Layer(buffer))}
         }
     }
 
