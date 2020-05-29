@@ -40,6 +40,8 @@ fn main() {
     let sdl_context = sdl2::init().unwrap();
     let window = sdl_context.video().unwrap().window("two_stroke demo", 800, 600)
                 .position_centered()
+                .resizable()
+                .opengl()
                 .build()
                 .unwrap();
 
