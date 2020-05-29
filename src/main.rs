@@ -44,12 +44,9 @@ fn main() {
     let mut canvas = window.into_canvas().build().unwrap();
     let mut events = sdl_context.event_pump().unwrap();
     let mbus_thread = thread::spawn(move || {message_bus.do_messaging();});
-<<<<<<< HEAD
     let mut layer = [[0; 256]; 240];
     let mut player_coords = (0, 0);
-=======
     let mut current_time = Instant::now();
->>>>>>> 91f4454d02708857d0bbbd1dd936f3fc9b49a4a8
 
 
 
