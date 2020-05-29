@@ -14,16 +14,18 @@ use sdl2::event::Event;
 use sdl2::pixels::Color;
 use sdl2::keyboard::Keycode;
 use sdl2::rect::Rect;
+use sdl2::render::Canvas;
+use sdl2::video::Window;
 use crossbeam_channel::unbounded;
 
 
 fn main() {
     //Create two_stroke objects
     let mut message_bus = omnibus::Omnibus::new("general_bus");
-    let mut render_channel = unbounded::<OmniPayload>();
+    let (render_send, render_recv) = unbounded::<[[u8; 256]; 240]>();
     let (main_send, main_recv) = message_bus.join(1).unwrap();
     let mut bad_rand = rng_module::bad_rng::StatefulLfsr::new(11, 11, &mut message_bus);
-    let mut layer_composer = composer_module::composer::LayerComposer::new(13, &mut message_bus);
+    let mut layer_composer = composer_module::composer::LayerComposer::new(13, &mut message_bus, (render_send.clone(), render_recv.clone()));
     let count = clock_module::clock::TheCount::new(Duration::new(0, 16666666), 10, &mut message_bus);
     //Start threads for two_stroke objects
     let _thread1 = thread::spawn(move || {count.run();});
@@ -40,6 +42,8 @@ fn main() {
     let mut canvas = window.into_canvas().build().unwrap();
     let mut events = sdl_context.event_pump().unwrap();
     let mbus_thread = thread::spawn(move || {message_bus.do_messaging();});
+    let mut layer = [[0; 256]; 240];
+    let mut player_coords = (0, 0);
 
 
 
@@ -52,18 +56,32 @@ fn main() {
     let mut i: u8 = 1;
     let mut j: u8 = 2;
     let mut k: u8 = 3;
+    let mut l: i32 = -800;
+    let mut m: i32 = -600;
     loop{
         //Check Input and send messages
         for event in events.poll_iter(){
             match event{ //Input handling goes here now and send input out to logic
                 Event::KeyUp {keycode: Some(Keycode::W), ..} | Event::KeyDown {keycode: Some(Keycode::W), ..} => {
-                    println!("Key W: {:?}", event);},
+                    println!("Key W: {:?}", event);
+                    player_coords.1 = (player_coords.1 - 5)%800;
+                    println!("coords: {:?}", player_coords);
+                },
                 Event::KeyUp {keycode: Some(Keycode::A), ..} | Event::KeyDown {keycode: Some(Keycode::A), ..} => {
-                    println!("Key A: {:?}", event);},
+                    println!("Key A: {:?}", event);
+                    player_coords.0 = (player_coords.0 - 5)%600;
+                    println!("coords: {:?}", player_coords);
+                },
                 Event::KeyUp {keycode: Some(Keycode::S), ..} | Event::KeyDown {keycode: Some(Keycode::S), ..} => {
-                    println!("Key S: {:?}", event);},
+                    println!("Key S: {:?}", event);
+                    player_coords.1 = (player_coords.1 + 5)%800;
+                    println!("coords: {:?}", player_coords);
+                },
                 Event::KeyUp {keycode: Some(Keycode::D), ..} | Event::KeyDown {keycode: Some(Keycode::D), ..} => {
-                    println!("Key D: {:?}", event);},
+                    println!("Key D: {:?}", event);
+                    player_coords.0 = (player_coords.0 + 5)%600;
+                    println!("coords: {:?}", player_coords);
+                },
                 Event::Quit {..} => {exit(1)},
                 _ => {}
             }
@@ -71,18 +89,34 @@ fn main() {
         //Read messages and configure variables as needed
 
         //Render phase
+        render_send.send(layer);
+
+
         i = i.wrapping_add(1);
         j = j.wrapping_add(2);
         k = k.wrapping_add(3);
+        match l {
+            -800..=799 => l = l+1,
+            800 => l = -800,
+            _ => l = -800,
+         }
+         match m {
+             _ => m = 0
+             // -800..=799 => m = m+1,
+             // 800 => m = -800,
+             // _ => m = -800,
+          }
         canvas.clear();
         canvas.set_draw_color(Color::RGB(0, 0, 0));
         canvas.set_draw_color(Color::RGB(i, j, k));
         canvas.fill_rect(Rect::new(0, 0, 800, 600)).unwrap();
         canvas.set_draw_color(Color::RGB(0, 0, 0));
+        canvas.fill_rect(Rect::new(player_coords.0, player_coords.1, 16, 16)).unwrap();
         canvas.present();
+        sweep(&mut canvas);
 
 
-
+        let layer = render_recv.recv();
         //Wait on clock tick here
         for msg in main_recv.iter(){
             match msg.payload{
@@ -97,4 +131,11 @@ fn main() {
     //message_bus.publish(Arc::new(omnibus::Message::new_sub("bus", 2, "test", Instant::now())));
     //my_input.run();
 
+}
+
+fn sweep(mut canvas: &mut Canvas<Window>) -> (){
+    for i in (-800..=800).step_by(1){
+        canvas.clear();
+        canvas.fill_rect(Rect::new(i, 0, 800, 600)).unwrap();
+    }
 }
