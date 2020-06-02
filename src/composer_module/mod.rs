@@ -21,12 +21,13 @@ pub mod composer {
             LayerComposer{layer_buffer: buffer, target: target}
         }
 
-        pub fn render(&mut self) -> () {
+        pub fn render(&mut self, player_coords: (i32, i32)) -> () {
             self.target.clear();
             let (x_size, y_size) = self.target.output_size().unwrap();
             self.target.set_draw_color(Color::RGB(100, 150, 200));
             self.target.fill_rect(Rect::new(0, 0, x_size, y_size)).unwrap();
             self.target.set_draw_color(Color::RGB(0, 0, 0));
+            self.target.fill_rect(Rect::new(player_coords.0, player_coords.1, 16, 16)).unwrap();
             self.target.present();
 
         }

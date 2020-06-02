@@ -101,7 +101,7 @@ fn main() {
         //Read messages and configure variables as needed
 
         //Render phase
-        layer_composer.render();
+        layer_composer.render(player_coords);
 
 
         //sweep(&mut canvas);
