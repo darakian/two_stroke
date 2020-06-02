@@ -24,10 +24,8 @@ use crossbeam_channel::unbounded;
 fn main() {
     //Create two_stroke objects
     let mut message_bus = omnibus::Omnibus::new("general_bus");
-    let (render_send, render_recv) = unbounded::<[[u8; 256]; 240]>();
     let (main_send, main_recv) = message_bus.join(1).unwrap();
     let mut bad_rand = rng_module::bad_rng::StatefulLfsr::new(11, 11, &mut message_bus);
-    let mut layer_composer = composer_module::composer::LayerComposer::new();
     let count = clock_module::clock::TheCount::new(Duration::new(0, 16666666), 10, &mut message_bus);
     //Start threads for two_stroke objects
     let _thread1 = thread::spawn(move || {count.run();});
@@ -46,6 +44,7 @@ fn main() {
 
     println!("{:?}", sdl_context.video().unwrap().current_video_driver());
     let mut canvas = window.into_canvas().build().unwrap();
+    let mut layer_composer = composer_module::composer::LayerComposer::new(canvas);
     let mut events = sdl_context.event_pump().unwrap();
     let mbus_thread = thread::spawn(move || {message_bus.do_messaging();});
     let mut layer = [[0; 256]; 240];
@@ -102,24 +101,12 @@ fn main() {
         //Read messages and configure variables as needed
 
         //Render phase
-        render_send.send(layer);
+        layer_composer.render();
 
 
-        i = i.wrapping_add(1);
-        j = j.wrapping_add(2);
-        k = k.wrapping_add(3);
-
-        canvas.clear();
-        canvas.set_draw_color(Color::RGB(0, 0, 0));
-        canvas.set_draw_color(Color::RGB(i, j, k));
-        canvas.fill_rect(Rect::new(0+x_offset, 0+y_offset, x_size, y_size)).unwrap();
-        canvas.set_draw_color(Color::RGB(0, 0, 0));
-        canvas.fill_rect(Rect::new(player_coords.0, player_coords.1, 16, 16)).unwrap();
-        canvas.present();
         //sweep(&mut canvas);
 
 
-        let layer = render_recv.recv();
         // Wait on clock tick here
         for msg in main_recv.iter(){
             match msg.payload{
