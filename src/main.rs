@@ -70,6 +70,7 @@ fn main() {
         main_send.send(
                     Arc::new(omnibus::Message::new_layer("composer", frame_buffer, 0, current_time)))
                 .expect("Error sending tick");
+
         //Check Input and send messages
         for event in events.poll_iter(){
             println!(">>> {:?}", event);
@@ -101,7 +102,13 @@ fn main() {
         //Read messages and configure variables as needed
 
         //Render phase
-        layer_composer.render(player_coords);
+        layer_composer.render(player_coords, vec![
+            vec![
+                (Rect::new(200, 100, 50, 50), Color::RGB(200, 150, 200)),
+                (Rect::new(200, 200, 50, 50), Color::RGB(200, 150, 200)),
+                (Rect::new(200, 300, 50, 50), Color::RGB(200, 150, 200)),
+                (Rect::new(200, 500, 50, 50), Color::RGB(200, 150, 200))
+                ]]);
 
 
         //sweep(&mut canvas);
