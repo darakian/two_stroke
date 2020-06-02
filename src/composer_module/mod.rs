@@ -1,9 +1,4 @@
 pub mod composer {
-    use std::time::Instant;
-    use std::sync::Arc;
-    use crossbeam_channel::{Sender, Receiver};
-    use crate::messaging_module::omnibus;
-    use crate::messaging_module::omnibus::{Message, OmniPayload, Omnibus};
     use sdl2::pixels::Color;
     use sdl2::rect::Rect;
     use sdl2::render::Canvas;
