@@ -27,12 +27,11 @@ fn main() {
     let (render_send, render_recv) = unbounded::<[[u8; 256]; 240]>();
     let (main_send, main_recv) = message_bus.join(1).unwrap();
     let mut bad_rand = rng_module::bad_rng::StatefulLfsr::new(11, 11, &mut message_bus);
-    let mut layer_composer = composer_module::composer::LayerComposer::new(13, &mut message_bus, (render_send.clone(), render_recv.clone()));
+    let mut layer_composer = composer_module::composer::LayerComposer::new();
     let count = clock_module::clock::TheCount::new(Duration::new(0, 16666666), 10, &mut message_bus);
     //Start threads for two_stroke objects
     let _thread1 = thread::spawn(move || {count.run();});
     let _thread2 = thread::spawn(move || {bad_rand.run();});
-    let _thread3 = thread::spawn(move || {layer_composer.run();});
     //Create sdl window to allow for input capture and display
 
     let x_size = 800;
@@ -45,6 +44,7 @@ fn main() {
                 .build()
                 .unwrap();
 
+    println!("{:?}", sdl_context.video().unwrap().current_video_driver());
     let mut canvas = window.into_canvas().build().unwrap();
     let mut events = sdl_context.event_pump().unwrap();
     let mbus_thread = thread::spawn(move || {message_bus.do_messaging();});
