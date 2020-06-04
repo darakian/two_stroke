@@ -20,6 +20,10 @@ use sdl2::render::Canvas;
 use sdl2::video::Window;
 use crossbeam_channel::unbounded;
 
+struct background {
+    components: Vec<(Rect, Color)>,
+}
+
 
 fn main() {
     //Create two_stroke objects
