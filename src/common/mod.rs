@@ -20,3 +20,14 @@ pub mod player_action {
         YDirection{y: i16},
     }
 }
+
+use std::fs::File;
+use sdl2::pixels::Color;
+use sdl2::rect::Rect;
+use std::io::Read;
+
+pub fn bmp_to_rects(mut f: File) -> Vec<(Rect, Color)>{
+    let mut buffer = Vec::new();
+    f.read_to_end(&mut buffer).unwrap();
+    vec![]
+}

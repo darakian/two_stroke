@@ -53,6 +53,7 @@ fn main() {
     let mbus_thread = thread::spawn(move || {message_bus.do_messaging();});
     let mut layer = [[0; 256]; 240];
     let mut player_coords = (0, 0);
+    let mut player_velocity = (0, 0);
     let mut current_time = Instant::now();
 
 
@@ -79,29 +80,41 @@ fn main() {
         for event in events.poll_iter(){
             println!(">>> {:?}", event);
             match event{ //Input handling goes here now and send input out to logic
-                Event::KeyUp {keycode: Some(Keycode::W), ..} | Event::KeyDown {keycode: Some(Keycode::W), ..} => {
+                Event::KeyDown {keycode: Some(Keycode::W), ..} => {
                     println!("Key W: {:?}", event);
-                    player_coords.1 = (player_coords.1 - 3)%800;
-                    println!("coords: {:?}", player_coords);
+                    player_velocity.1 = -8;
+                    println!("Velo: {:?}", player_velocity);
                 },
-                Event::KeyUp {keycode: Some(Keycode::A), ..} | Event::KeyDown {keycode: Some(Keycode::A), ..} => {
+                Event::KeyDown {keycode: Some(Keycode::A), ..} => {
                     println!("Key A: {:?}", event);
-                    player_coords.0 = (player_coords.0 - 3)%600;
-                    println!("coords: {:?}", player_coords);
+                    player_velocity.0 = -8;
+                    println!("Velo: {:?}", player_velocity);
                 },
-                Event::KeyUp {keycode: Some(Keycode::S), ..} | Event::KeyDown {keycode: Some(Keycode::S), ..} => {
+                Event::KeyDown {keycode: Some(Keycode::S), ..} => {
                     println!("Key S: {:?}", event);
-                    player_coords.1 = (player_coords.1 + 3)%800;
-                    println!("coords: {:?}", player_coords);
+                    player_velocity.1 = 8;
+                    println!("Velo: {:?}", player_velocity);
                 },
-                Event::KeyUp {keycode: Some(Keycode::D), ..} | Event::KeyDown {keycode: Some(Keycode::D), ..} => {
+                Event::KeyDown {keycode: Some(Keycode::D), ..} => {
                     println!("Key D: {:?}", event);
-                    player_coords.0 = (player_coords.0 + 3)%600;
-                    println!("coords: {:?}", player_coords);
+                    player_velocity.0 = 8;
+                    println!("Velo: {:?}", player_velocity);
+                },
+                Event::KeyUp {keycode: Some(Keycode::A), ..} | Event::KeyUp {keycode: Some(Keycode::D), ..} => {
+                    println!("Key A: {:?}", event);
+                    player_velocity.0 = 0;
+                    println!("Velo: {:?}", player_velocity);
+                },
+                Event::KeyUp {keycode: Some(Keycode::W), ..} | Event::KeyUp {keycode: Some(Keycode::S), ..} => {
+                    println!("Key W: {:?}", event);
+                    player_velocity.1 = 0;
+                    println!("Velo: {:?}", player_velocity);
                 },
                 Event::Quit {..} => {exit(1)},
                 _ => {}
             }
+            player_coords.0 += player_velocity.0;
+            player_coords.1 += player_velocity.1;
         }
         //Read messages and configure variables as needed
 
